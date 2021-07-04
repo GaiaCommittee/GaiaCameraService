@@ -85,12 +85,10 @@ endif()
 
 # Gaia Shared Memory
 add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
-# Gaia Background
-add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
-# Gaia Log Client
-add_custom_module(${TARGET_NAME} PUBLIC GaiaLogClient)
-# Gaia Configuration Client
-add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
+
+# Gaia Camera Server
+target_include_directories(${TARGET_NAME} PRIVATE "../")
+target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
 
 # GxAPI (Daheng Camera SDK)
 find_path(GX_API_INCLUDE "GxIAPI.h")

@@ -17,7 +17,7 @@ endif()
 # Unit Settings
 #==============================
 
-set(TARGET_NAME "GaiaCameraClient")
+set(TARGET_NAME "GaiaHikServer")
 
 #==============================
 # Command Lines
@@ -72,7 +72,7 @@ find_hpp(${CMAKE_CURRENT_SOURCE_DIR} TARGET_HEADER)
 # Compile Targets
 #==============================
 
-add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
+add_executable(${TARGET_NAME} ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
 
 # Enable 'DEBUG' Macro in Debug Mode
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -86,10 +86,20 @@ endif()
 # Gaia Shared Memory
 add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
 
-# OpenCV
-find_package(OpenCV REQUIRED)
-target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
+# Gaia Camera Server
+target_include_directories(${TARGET_NAME} PRIVATE "../")
+target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
+
+# HikAPI
+find_path(Hik_INCLUDE "MvCameraControl.h")
+find_library(Hik_LIBRARY "libMvCameraControl.so")
+target_include_directories(${TARGET_NAME} PUBLIC ${Hik_INCLUDE})
+target_link_libraries(${TARGET_NAME} PUBLIC ${Hik_LIBRARY})
+
+# Boost
+find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
+target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 
 # hiredis
 find_path(HIREDIS_INCLUDE_DIRS hiredis)

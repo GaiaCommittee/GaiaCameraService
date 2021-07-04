@@ -18,7 +18,14 @@ endif()
 #==============================
 
 add_subdirectory("GaiaCameraClient")
+add_subdirectory("GaiaCameraServer")
+
 add_subdirectory("GaiaDahengServer")
+add_subdirectory("GaiaHikServer")
+add_subdirectory("GaiaZedServer")
+
+add_subdirectory("GaiaCameraViewer")
+add_subdirectory("GaiaCameraCalibrator")
 
 if (WITH_TEST)
 #    add_subdirectory("GaiaLogClientTest")

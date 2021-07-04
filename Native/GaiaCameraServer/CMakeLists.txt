@@ -17,7 +17,7 @@ endif()
 # Unit Settings
 #==============================
 
-set(TARGET_NAME "GaiaCameraClient")
+set(TARGET_NAME "GaiaCameraServer")
 
 #==============================
 # Command Lines
@@ -85,11 +85,19 @@ endif()
 
 # Gaia Shared Memory
 add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+# Gaia Background
+add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
+# Gaia Log Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaLogClient)
+# Gaia Configuration Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
+# Gaia Name Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaNameClient)
 
-# OpenCV
-find_package(OpenCV REQUIRED)
-target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
+# Boost
+find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
+target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 
 # hiredis
 find_path(HIREDIS_INCLUDE_DIRS hiredis)

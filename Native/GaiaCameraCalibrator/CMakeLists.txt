@@ -17,7 +17,7 @@ endif()
 # Unit Settings
 #==============================
 
-set(TARGET_NAME "GaiaCameraClient")
+set(TARGET_NAME "GaiaCameraCalibrator")
 
 #==============================
 # Command Lines
@@ -72,7 +72,7 @@ find_hpp(${CMAKE_CURRENT_SOURCE_DIR} TARGET_HEADER)
 # Compile Targets
 #==============================
 
-add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
+add_executable(${TARGET_NAME} ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
 
 # Enable 'DEBUG' Macro in Debug Mode
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -83,13 +83,20 @@ endif()
 # Dependencies
 #==============================
 
-# Gaia Shared Memory
-add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+target_include_directories(${TARGET_NAME} PUBLIC "../")
+
+# Gaia Camera Client
+target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraClient)
 
 # OpenCV
 find_package(OpenCV REQUIRED)
 target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
+
+# Boost
+find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
+target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 
 # hiredis
 find_path(HIREDIS_INCLUDE_DIRS hiredis)

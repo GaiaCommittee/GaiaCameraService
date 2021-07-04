@@ -13,11 +13,13 @@ if (NOT PROJECT_DECLARED)
     set(PROJECT_DECLARED)
 endif()
 
+enable_language(CUDA)
+
 #==============================
 # Unit Settings
 #==============================
 
-set(TARGET_NAME "GaiaCameraClient")
+set(TARGET_NAME "GaiaZedServer")
 
 #==============================
 # Command Lines
@@ -72,7 +74,7 @@ find_hpp(${CMAKE_CURRENT_SOURCE_DIR} TARGET_HEADER)
 # Compile Targets
 #==============================
 
-add_library(${TARGET_NAME} SHARED ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
+add_executable(${TARGET_NAME} ${TARGET_SOURCE} ${TARGET_HEADER} ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER})
 
 # Enable 'DEBUG' Macro in Debug Mode
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -85,11 +87,32 @@ endif()
 
 # Gaia Shared Memory
 add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+# Gaia Background
+add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
+
+# Gaia Camera Server
+target_include_directories(${TARGET_NAME} PRIVATE "../")
+target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
 
 # OpenCV
 find_package(OpenCV REQUIRED)
 target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
+
+# ZED
+find_package(ZED 3 REQUIRED)
+target_include_directories(${TARGET_NAME} PUBLIC ${ZED_INCLUDE_DIRS})
+target_link_directories(${TARGET_NAME} PUBLIC ${ZED_LIBRARY_DIR})
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    target_link_libraries(${TARGET_NAME} PUBLIC ${ZED_LIBRARIES_DEBUG})
+else()
+    target_link_libraries(${TARGET_NAME} PUBLIC ${ZED_LIBRARIES})
+endif()
+
+# Boost
+find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
+target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 
 # hiredis
 find_path(HIREDIS_INCLUDE_DIRS hiredis)
