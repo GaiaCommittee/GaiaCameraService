@@ -19,23 +19,23 @@ namespace Gaia::CameraService
         if (optional_height) HeightSource = std::stoi(*optional_height);
         auto optional_channels = Connection->get(information_prefix + "channels");
         if (optional_channels) ChannelsSource = std::stoi(*optional_channels);
-        FormatSource = Connection->get(information_prefix + "format").value_or("Unknown");
+        PixelFormatSource = Connection->get(information_prefix + "format").value_or("Unknown");
 
-        if (Format == "8U"){
+        if (PixelFormat == "8U"){
             MatFormat = CV_8UC(Channels);
-        }else if (Format == "8S"){
+        }else if (PixelFormat == "8S"){
             MatFormat = CV_8SC(Channels);
-        }else if (Format == "16U"){
+        }else if (PixelFormat == "16U"){
             MatFormat = CV_16UC(Channels);
-        }else if (Format == "16S"){
+        }else if (PixelFormat == "16S"){
             MatFormat = CV_16SC(Channels);
-        }else if (Format == "16F"){
+        }else if (PixelFormat == "16F"){
             MatFormat = CV_16FC(Channels);
-        }else if (Format == "32S"){
+        }else if (PixelFormat == "32S"){
             MatFormat = CV_32SC(Channels);
-        }else if (Format == "32F"){
+        }else if (PixelFormat == "32F"){
             MatFormat = CV_32FC(Channels);
-        }else if (Format == "64F"){
+        }else if (PixelFormat == "64F"){
             MatFormat = CV_64FC(Channels);
         }
 
@@ -54,7 +54,7 @@ namespace Gaia::CameraService
             TimestampName(reader.TimestampName), InformationPrefix(reader.InformationPrefix),
             MemoryBlockName(reader.MemoryBlockName),
             WidthSource(reader.WidthSource), HeightSource(reader.HeightSource),
-            ChannelsSource(reader.ChannelsSource), FormatSource(reader.FormatSource),
+            ChannelsSource(reader.ChannelsSource), PixelFormatSource(reader.PixelFormatSource),
             MatFormat(reader.MatFormat)
     {
         PictureBlock.Open(MemoryBlockName);

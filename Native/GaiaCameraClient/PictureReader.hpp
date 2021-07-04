@@ -38,7 +38,7 @@ namespace Gaia::CameraService
         /// Source of picture channels property.
         unsigned int ChannelsSource {0};
         /// Source of picture format property.
-        std::string FormatSource {"Unknown"};
+        std::string PixelFormatSource {"Unknown"};
     public:
         /**
          * @brief Connect to the shared memory block with the given name.
@@ -61,7 +61,7 @@ namespace Gaia::CameraService
         /// Channels of the picture.
         const decltype(ChannelsSource)& Channels {ChannelsSource};
         /// Format of the picture.
-        const decltype(FormatSource)& Format {FormatSource};
+        const decltype(PixelFormatSource)& PixelFormat {PixelFormatSource};
 
         /// Read the data matrix of this picture.
         [[nodiscard]] cv::Mat Read() const;
