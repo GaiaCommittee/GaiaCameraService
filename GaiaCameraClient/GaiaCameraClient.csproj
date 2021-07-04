@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Gaia.CameraService</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="OpenCvSharp4" Version="4.5.2.20210404" />
+      <PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="4.5.2.20210404" />
+      <PackageReference Include="StackExchange.Redis" Version="2.2.62" />
+      <PackageReference Include="System.IO.MemoryMappedFiles" Version="4.3.0" />
+    </ItemGroup>
+
+</Project>
