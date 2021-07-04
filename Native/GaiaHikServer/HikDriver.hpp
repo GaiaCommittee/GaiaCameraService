@@ -3,36 +3,32 @@
 #include <memory>
 #include <GaiaSharedMemory/GaiaSharedMemory.hpp>
 #include <GaiaCameraServer/GaiaCameraServer.hpp>
-#include <GaiaBackground/GaiaBackground.hpp>
-#include <sl/Camera.hpp>
 
 namespace Gaia::CameraService
 {
-    class ZedCamera : public CameraInterface
+    class HikDriver : public CameraDriverInterface
     {
     private:
-        /// Zed camera device.
-        sl::Camera Device;
+        // Camera handle gotten from SDK.
+        void *DeviceHandle{nullptr};
         /// Count of pictures captured by the camera.
         std::atomic<unsigned int> ReceivedPicturesCount{0};
-        /// Shared memory for the captured left view picture.
-        SharedMemory::SourceMemory LeftViewMemory;
-        /// Shared memory for the captured right view picture.
-        SharedMemory::SourceMemory RightViewMemory;
-        /// Shared memory for the point cloud picture.
-        SharedMemory::SourceMemory PointCloudMemory;
-        /// Background acquisition thread.
-        Background::BackgroundWorker GrabberThread;
-
-        /// Grab a picture and write it into the shared memory.
-        void UpdatePicture();
+        /// Shared memory for the captured picture.
+        SharedMemory::SourceMemory PictureMemory;
 
     public:
         /// Default constructor.
-        ZedCamera();
+        HikDriver();
 
         /// Auto close the camera.
-        ~ZedCamera() override;
+        ~HikDriver() override;
+
+        /**
+         * @brief Invoked when a new picture is captured by the camera.
+         * @param data Address of the raw picture captured by the camera.
+         * @param parameters_package Pointers to the frame information package.
+         */
+        void OnPictureCapture(unsigned char *data, void* parameters_package);
 
         /**
          * @brief Get width of the picture.
@@ -74,7 +70,7 @@ namespace Gaia::CameraService
          * @brief Get the exposure of the camera.
          * @return Microseconds of the exposure time.
          */
-        bool SetExposure(unsigned int percentage) override;
+        bool SetExposure(unsigned int microseconds) override;
 
         /**
          * @brief Get the exposure of the camera.
@@ -103,27 +99,19 @@ namespace Gaia::CameraService
         /**
          * @brief Set blue channel value of the white balance.
          * @param ratio Value of the target channel.
-         * @warning This function is not supported, a warning will be recorded.
          */
         bool SetWhiteBalanceBlue(double ratio) override;
 
-        /**
-         * @brief Get blue channel value of the white balance.
-         * @warning This function is not supported, a warning will be recorded.
-         */
+        /// Get blue channel value of the white balance.
         double GetWhiteBalanceBlue() override;
 
         /**
          * @brief Set green channel value of the white balance.
          * @param ratio Value of the target channel.
-         * @warning This function is not supported, a warning will be recorded.
          */
         bool SetWhiteBalanceGreen(double ratio) override;
 
-        /**
-         * @brief Get green channel value of the white balance.
-         * @warning This function is not supported, a warning will be recorded.
-         */
+        /// Get green channel value of the white balance.
         double GetWhiteBalanceGreen() override;
 
         /**

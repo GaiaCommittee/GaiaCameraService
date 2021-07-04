@@ -1,4 +1,4 @@
-#include "DahengCamera.hpp"
+#include "DahengDriver.hpp"
 
 #include <GxIAPI.h>
 #include <DxImageProc.h>
@@ -8,7 +8,7 @@ namespace Gaia::CameraService
     /// Callback for camera capture event.
     void CameraCaptureCallback(GX_FRAME_CALLBACK_PARAM* parameters_package)
     {
-        auto* target = static_cast<DahengCamera*>(parameters_package->pUserParam);
+        auto* target = static_cast<DahengDriver*>(parameters_package->pUserParam);
         if (target)
         {
             target->OnPictureCapture(parameters_package);
@@ -16,18 +16,18 @@ namespace Gaia::CameraService
     }
 
     /// Constructor.
-    DahengCamera::DahengCamera() :
-        CameraInterface("daheng")
+    DahengDriver::DahengDriver() :
+        CameraDriverInterface("daheng")
     {}
 
     /// Destructor which will automatically close the device.
-    DahengCamera::~DahengCamera()
+    DahengDriver::~DahengDriver()
     {
         Close();
     }
 
     /// Invoked when a new picture is captured by the camera.
-    void DahengCamera::OnPictureCapture(void *parameters_package)
+    void DahengDriver::OnPictureCapture(void *parameters_package)
     {
         auto* parameters = static_cast<GX_FRAME_CALLBACK_PARAM*>(parameters_package);
 
@@ -60,7 +60,7 @@ namespace Gaia::CameraService
     }
 
     /// Open the camera.
-    void DahengCamera::Open()
+    void DahengDriver::Open()
     {
         if (DeviceHandle)
         {
@@ -141,7 +141,7 @@ namespace Gaia::CameraService
     }
 
     /// Close the opened camera device.
-    void DahengCamera::Close()
+    void DahengDriver::Close()
     {
         if (!DeviceHandle) return;
         GXSendCommand(DeviceHandle, GX_COMMAND_ACQUISITION_STOP);
@@ -153,7 +153,7 @@ namespace Gaia::CameraService
     }
 
     /// Get current frames per seconds.
-    unsigned int DahengCamera::AcquireReceivedFrameCount()
+    unsigned int DahengDriver::AcquireReceivedFrameCount()
     {
         auto count = ReceivedPicturesCount.load();
         ReceivedPicturesCount = 0;
@@ -161,7 +161,7 @@ namespace Gaia::CameraService
     }
 
     /// Set the exposure of the camera.
-    bool DahengCamera::SetExposure(unsigned int microseconds)
+    bool DahengDriver::SetExposure(unsigned int microseconds)
     {
         if (DeviceHandle &&
             GXSetFloat(DeviceHandle, GX_FLOAT_EXPOSURE_TIME, microseconds) == GX_STATUS_LIST::GX_STATUS_SUCCESS)
@@ -172,7 +172,7 @@ namespace Gaia::CameraService
     }
 
     /// Get exposure time.
-    unsigned int DahengCamera::GetExposure()
+    unsigned int DahengDriver::GetExposure()
     {
         double exposure_time = 0.0;
         if (DeviceHandle)
@@ -183,7 +183,7 @@ namespace Gaia::CameraService
     }
 
     /// Set the digital gain of the camera.
-    bool DahengCamera::SetGain(double gain)
+    bool DahengDriver::SetGain(double gain)
     {
         if (DeviceHandle &&
             GXSetFloat(DeviceHandle, GX_FLOAT_GAIN, gain) == GX_STATUS_LIST::GX_STATUS_SUCCESS)
@@ -194,7 +194,7 @@ namespace Gaia::CameraService
     }
 
     /// Get digital gain.
-    double DahengCamera::GetGain()
+    double DahengDriver::GetGain()
     {
         double gain = 0.0;
         if (DeviceHandle)
@@ -205,7 +205,7 @@ namespace Gaia::CameraService
     }
 
     /// Set red channel value of the white balance.
-    bool DahengCamera::SetWhiteBalanceRed(double ratio)
+    bool DahengDriver::SetWhiteBalanceRed(double ratio)
     {
         if (DeviceHandle)
         {
@@ -228,7 +228,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance red channel value.
-    double DahengCamera::GetWhiteBalanceRed()
+    double DahengDriver::GetWhiteBalanceRed()
     {
         double value = 0.0;
         if (DeviceHandle && GXSetEnum(DeviceHandle,
@@ -242,7 +242,7 @@ namespace Gaia::CameraService
     }
 
     /// Set blue channel value of the white balance.
-    bool DahengCamera::SetWhiteBalanceBlue(double ratio)
+    bool DahengDriver::SetWhiteBalanceBlue(double ratio)
     {
         if (DeviceHandle)
         {
@@ -265,7 +265,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance blue channel value.
-    double DahengCamera::GetWhiteBalanceBlue()
+    double DahengDriver::GetWhiteBalanceBlue()
     {
         double value = 0.0;
         if (DeviceHandle && GXSetEnum(DeviceHandle,
@@ -279,7 +279,7 @@ namespace Gaia::CameraService
     }
 
     /// Set green channel value of the white balance.
-    bool DahengCamera::SetWhiteBalanceGreen(double ratio)
+    bool DahengDriver::SetWhiteBalanceGreen(double ratio)
     {
         if (DeviceHandle)
         {
@@ -302,7 +302,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance green channel value.
-    double DahengCamera::GetWhiteBalanceGreen()
+    double DahengDriver::GetWhiteBalanceGreen()
     {
         double value = 0.0;
         if (DeviceHandle && GXSetEnum(DeviceHandle,
@@ -316,7 +316,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust the exposure for once.
-    bool DahengCamera::AutoAdjustExposure()
+    bool DahengDriver::AutoAdjustExposure()
     {
         if (!DeviceHandle) return false;
         return GXSetEnum(DeviceHandle, GX_ENUM_EXPOSURE_AUTO, GX_EXPOSURE_AUTO_ONCE)
@@ -324,7 +324,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust the gain for once.
-    bool DahengCamera::AutoAdjustGain()
+    bool DahengDriver::AutoAdjustGain()
     {
         if (!DeviceHandle) return false;
         if (GXSetEnum(DeviceHandle, GX_ENUM_GAIN_SELECTOR, GX_GAIN_SELECTOR_ALL) ==
@@ -337,7 +337,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust white balance for once.
-    bool DahengCamera::AutoAdjustWhiteBalance()
+    bool DahengDriver::AutoAdjustWhiteBalance()
     {
         if (!DeviceHandle) return false;
         return GXSetEnum(DeviceHandle, GX_ENUM_BALANCE_WHITE_AUTO, GX_BALANCE_WHITE_AUTO_ONCE)
@@ -345,7 +345,7 @@ namespace Gaia::CameraService
     }
 
     /// Get width of the picture.
-    long DahengCamera::GetPictureWidth()
+    long DahengDriver::GetPictureWidth()
     {
         long width = 0;
         if (DeviceHandle)
@@ -357,7 +357,7 @@ namespace Gaia::CameraService
     }
 
     /// Get height of the picture.
-    long DahengCamera::GetPictureHeight()
+    long DahengDriver::GetPictureHeight()
     {
         long height = 0;
         if (DeviceHandle)
@@ -368,19 +368,19 @@ namespace Gaia::CameraService
     }
 
     /// Get channels description.
-    std::vector<std::vector<char>> DahengCamera::GetPictureChannels()
+    std::vector<std::vector<char>> DahengDriver::GetPictureChannels()
     {
         return {{'B', 'G', 'R'}};
     }
 
     /// Get format name of the picture.
-    std::vector<std::string> DahengCamera::GetPictureFormats()
+    std::vector<std::string> DahengDriver::GetPictureFormats()
     {
         return {"8U"};
     }
 
     /// Get picture names list.
-    std::vector<std::string> DahengCamera::GetPictureNames()
+    std::vector<std::string> DahengDriver::GetPictureNames()
     {
         return {"main"};
     }

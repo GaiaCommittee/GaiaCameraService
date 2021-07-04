@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CameraInterface.hpp"
+#include "CameraDriverInterface.hpp"
 #include "CameraServer.hpp"
 #include "Launcher.hpp"
 

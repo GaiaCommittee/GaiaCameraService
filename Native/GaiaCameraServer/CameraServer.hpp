@@ -11,7 +11,7 @@
 #include <GaiaNameClient/GaiaNameClient.hpp>
 #include <GaiaSharedMemory/GaiaSharedMemory.hpp>
 
-#include "CameraInterface.hpp"
+#include "CameraDriverInterface.hpp"
 
 namespace Gaia::CameraService
 {
@@ -36,11 +36,11 @@ namespace Gaia::CameraService
     class CameraServer
     {
         /// Allow camera interface to invoke UpdatePictureTimestamp().
-        friend void CameraInterface::UpdatePictureTimestamp(const std::string&);
+        friend void CameraDriverInterface::UpdatePictureTimestamp(const std::string&);
 
     private:
         /// Driver for the specific camera.
-        std::unique_ptr<CameraInterface> CameraDriver;
+        std::unique_ptr<CameraDriverInterface> CameraDriver;
 
         /// Life flag for the main loop.
         std::atomic<bool> LifeFlag {false};
@@ -88,7 +88,7 @@ namespace Gaia::CameraService
          * @param ip IP address of the Redis server.
          */
         explicit CameraServer(
-                std::unique_ptr<CameraInterface>&& camera_driver,
+                std::unique_ptr<CameraDriverInterface>&& camera_driver,
                 unsigned int device_index = 0,
                 unsigned int port = 6379, const std::string& ip = "127.0.0.1");
 

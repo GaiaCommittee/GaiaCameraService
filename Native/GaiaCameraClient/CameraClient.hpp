@@ -15,7 +15,7 @@ namespace Gaia::CameraService
      */
     class CameraClient
     {
-    private:
+    protected:
         /// Generated name of the camera device according to the camera type and device index.
         const std::string DeviceName;
         /// Name of the channel for camera control.
@@ -23,10 +23,11 @@ namespace Gaia::CameraService
         /// Name prefix for configuration items of the camera.
         const std::string ConfigurationPrefix;
 
-    public:
+    protected:
         /// Connection to the Redis server.
         std::shared_ptr<sw::redis::Redis> Connection;
 
+    public:
         /**
          * @brief Reuse the connection to connect to a Redis server and connect to the given camera.
          * @param camera Type name of the camera.

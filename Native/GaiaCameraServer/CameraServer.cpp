@@ -5,7 +5,7 @@
 namespace Gaia::CameraService
 {
     /// Connect to the Redis server.
-    CameraServer::CameraServer(std::unique_ptr<CameraInterface>&& camera_driver,
+    CameraServer::CameraServer(std::unique_ptr<CameraDriverInterface>&& camera_driver,
                                unsigned int device_index,
                                unsigned int port, const std::string &ip) :
        CameraDriver(std::move(camera_driver))

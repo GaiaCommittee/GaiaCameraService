@@ -1,4 +1,4 @@
-#include "ZedCamera.hpp"
+#include "ZedDriver.hpp"
 
 #include <opencv2/opencv.hpp>
 
@@ -76,8 +76,8 @@ namespace Gaia::CameraService
     }
 
     /// Constructor.
-    ZedCamera::ZedCamera() :
-        CameraInterface("zed"),
+    ZedDriver::ZedDriver() :
+        CameraDriverInterface("zed"),
         GrabberThread([this](const std::atomic_bool& flag){
             while (flag)
             {
@@ -87,13 +87,13 @@ namespace Gaia::CameraService
     {}
 
     /// Destructor which will automatically close the device.
-    ZedCamera::~ZedCamera()
+    ZedDriver::~ZedDriver()
     {
         Close();
     }
 
     /// Grab a picture and write it into the shared memory.
-    void ZedCamera::UpdatePicture()
+    void ZedDriver::UpdatePicture()
     {
         ReceivedPicturesCount++;
 
@@ -141,7 +141,7 @@ namespace Gaia::CameraService
     }
 
     /// Open the camera.
-    void ZedCamera::Open()
+    void ZedDriver::Open()
     {
         sl::InitParameters parameters;
         auto option_resolution = GetConfigurator()->Get("Resolution").value_or("HD720");
@@ -196,7 +196,7 @@ namespace Gaia::CameraService
     }
 
     /// Close the opened camera device.
-    void ZedCamera::Close()
+    void ZedDriver::Close()
     {
         GrabberThread.Stop();
         if (Device.isOpened())
@@ -209,7 +209,7 @@ namespace Gaia::CameraService
     };
 
     /// Get current frames per seconds.
-    unsigned int ZedCamera::AcquireReceivedFrameCount()
+    unsigned int ZedDriver::AcquireReceivedFrameCount()
     {
         auto count = ReceivedPicturesCount.load();
         ReceivedPicturesCount = 0;
@@ -217,7 +217,7 @@ namespace Gaia::CameraService
     }
 
     /// Set the exposure of the camera.
-    bool ZedCamera::SetExposure(unsigned int percentage)
+    bool ZedDriver::SetExposure(unsigned int percentage)
     {
         if (!Device.isOpened()) return false;
         Device.setCameraSettings(sl::VIDEO_SETTINGS::EXPOSURE, static_cast<int>(percentage));
@@ -225,14 +225,14 @@ namespace Gaia::CameraService
     }
 
     /// Get exposure time.
-    unsigned int ZedCamera::GetExposure()
+    unsigned int ZedDriver::GetExposure()
     {
         if (!Device.isOpened()) return 0;
         return static_cast<unsigned int>(Device.getCameraSettings(sl::VIDEO_SETTINGS::EXPOSURE));
     }
 
     /// Set the digital gain of the camera.
-    bool ZedCamera::SetGain(double gain)
+    bool ZedDriver::SetGain(double gain)
     {
         if (!Device.isOpened()) return false;
         Device.setCameraSettings(sl::VIDEO_SETTINGS::GAIN, static_cast<int>(gain));
@@ -240,14 +240,14 @@ namespace Gaia::CameraService
     }
 
     /// Get digital gain.
-    double ZedCamera::GetGain()
+    double ZedDriver::GetGain()
     {
         if (!Device.isOpened()) return 0.0f;
         return static_cast<double>(Device.getCameraSettings(sl::VIDEO_SETTINGS::GAIN));
     }
 
     /// Auto adjust the exposure for once.
-    bool ZedCamera::AutoAdjustExposure()
+    bool ZedDriver::AutoAdjustExposure()
     {
         if (!Device.isOpened()) return false;
         Device.setCameraSettings(sl::VIDEO_SETTINGS::EXPOSURE,
@@ -256,7 +256,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust the gain for once.
-    bool ZedCamera::AutoAdjustGain()
+    bool ZedDriver::AutoAdjustGain()
     {
         if (!Device.isOpened()) return false;
         Device.setCameraSettings(sl::VIDEO_SETTINGS::GAIN,
@@ -265,7 +265,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust white balance for once.
-    bool ZedCamera::AutoAdjustWhiteBalance()
+    bool ZedDriver::AutoAdjustWhiteBalance()
     {
         if (!Device.isOpened()) return false;
         Device.setCameraSettings(sl::VIDEO_SETTINGS::WHITEBALANCE_TEMPERATURE,
@@ -274,7 +274,7 @@ namespace Gaia::CameraService
     }
 
     /// Get width of the picture.
-    long ZedCamera::GetPictureWidth()
+    long ZedDriver::GetPictureWidth()
     {
         if (Device.isOpened())
         {
@@ -288,7 +288,7 @@ namespace Gaia::CameraService
     }
 
     /// Get height of the picture.
-    long ZedCamera::GetPictureHeight()
+    long ZedDriver::GetPictureHeight()
     {
         if (Device.isOpened())
         {
@@ -302,26 +302,26 @@ namespace Gaia::CameraService
     }
 
     /// Get channels description.
-    std::vector<std::vector<char>> ZedCamera::GetPictureChannels()
+    std::vector<std::vector<char>> ZedDriver::GetPictureChannels()
     {
         return {{'B', 'G', 'R', 'A'}, {'B', 'G', 'R', 'A'}, {'X', 'Y', 'Z', 'C'}};
     }
 
     /// Get format name of the picture.
-    std::vector<std::string> ZedCamera::GetPictureFormats()
+    std::vector<std::string> ZedDriver::GetPictureFormats()
     {
         return {"8U", "8U", "32F"};
     }
 
     /// Get picture names list.
-    std::vector<std::string> ZedCamera::GetPictureNames()
+    std::vector<std::string> ZedDriver::GetPictureNames()
     {
         return {"left", "right", "point_cloud"};
     }
 
 
     /// Set red channel value of the white balance.
-    bool ZedCamera::SetWhiteBalanceRed(double ratio)
+    bool ZedDriver::SetWhiteBalanceRed(double ratio)
     {
         GetLogger()->RecordWarning("White balance red channel is required to set to " + std::to_string(ratio) +
             ", but this function is not supported yet on ZED camera.");
@@ -329,7 +329,7 @@ namespace Gaia::CameraService
     }
 
     /// Get red channel value of the white balance.
-    double ZedCamera::GetWhiteBalanceRed()
+    double ZedDriver::GetWhiteBalanceRed()
     {
         GetLogger()->RecordWarning("White balance red channel is required, "
                                    "but this function is not supported yet.");
@@ -337,7 +337,7 @@ namespace Gaia::CameraService
     }
 
     /// Set blue channel value of the white balance.
-    bool ZedCamera::SetWhiteBalanceBlue(double ratio)
+    bool ZedDriver::SetWhiteBalanceBlue(double ratio)
     {
         GetLogger()->RecordWarning("White balance red channel is required to set to " + std::to_string(ratio) +
                                    ", but this function is not supported yet on ZED camera.");
@@ -345,7 +345,7 @@ namespace Gaia::CameraService
     }
 
     /// Get blue channel value of the white balance.
-    double ZedCamera::GetWhiteBalanceBlue()
+    double ZedDriver::GetWhiteBalanceBlue()
     {
         GetLogger()->RecordWarning("White balance blue channel is required, "
                                "but this function is not supported yet.");
@@ -353,7 +353,7 @@ namespace Gaia::CameraService
     }
 
     /// Set green channel value of the white balance.
-    bool ZedCamera::SetWhiteBalanceGreen(double ratio)
+    bool ZedDriver::SetWhiteBalanceGreen(double ratio)
     {
         GetLogger()->RecordWarning("White balance red channel is required to set to " + std::to_string(ratio) +
                                    ", but this function is not supported yet on ZED camera.");
@@ -361,7 +361,7 @@ namespace Gaia::CameraService
     }
 
     /// Get green channel value of the white balance.
-    double ZedCamera::GetWhiteBalanceGreen()
+    double ZedDriver::GetWhiteBalanceGreen()
     {
         GetLogger()->RecordWarning("White balance green channel is required, "
                                    "but this function is not supported yet.");

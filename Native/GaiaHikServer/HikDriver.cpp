@@ -1,4 +1,4 @@
-#include "HikCamera.hpp"
+#include "HikDriver.hpp"
 
 #include <MvCameraControl.h>
 
@@ -9,7 +9,7 @@ namespace Gaia::CameraService
                                MV_FRAME_OUT_INFO_EX* frame_information,
                                void* user_data)
     {
-        auto* target = static_cast<HikCamera*>(user_data);
+        auto* target = static_cast<HikDriver*>(user_data);
         if (target)
         {
             target->OnPictureCapture(data, frame_information);
@@ -17,18 +17,18 @@ namespace Gaia::CameraService
     }
 
     /// Constructor.
-    HikCamera::HikCamera() :
-            CameraInterface("hik")
+    HikDriver::HikDriver() :
+            CameraDriverInterface("hik")
     {}
 
     /// Destructor which will automatically close the device.
-    HikCamera::~HikCamera()
+    HikDriver::~HikDriver()
     {
         Close();
     }
 
     /// Invoked when a new picture is captured by the camera.
-    void HikCamera::OnPictureCapture(unsigned char *data, void* parameters_package)
+    void HikDriver::OnPictureCapture(unsigned char *data, void* parameters_package)
     {
         ReceivedPicturesCount++;
 
@@ -53,7 +53,7 @@ namespace Gaia::CameraService
     }
 
     /// Open the camera.
-    void HikCamera::Open()
+    void HikDriver::Open()
     {
         int operation_result = MV_OK;
         MV_CC_DEVICE_INFO_LIST device_info_list;
@@ -124,7 +124,7 @@ namespace Gaia::CameraService
     }
 
     /// Close the opened camera device.
-    void HikCamera::Close()
+    void HikDriver::Close()
     {
         if (!DeviceHandle) return;
         MV_CC_StopGrabbing(DeviceHandle);
@@ -136,7 +136,7 @@ namespace Gaia::CameraService
     }
 
     /// Get current frames per seconds.
-    unsigned int HikCamera::AcquireReceivedFrameCount()
+    unsigned int HikDriver::AcquireReceivedFrameCount()
     {
         auto count = ReceivedPicturesCount.load();
         ReceivedPicturesCount = 0;
@@ -144,7 +144,7 @@ namespace Gaia::CameraService
     }
 
     /// Set the exposure of the camera.
-    bool HikCamera::SetExposure(unsigned int microseconds)
+    bool HikDriver::SetExposure(unsigned int microseconds)
     {
         if (DeviceHandle)
         {
@@ -154,7 +154,7 @@ namespace Gaia::CameraService
     }
 
     /// Get exposure time.
-    unsigned int HikCamera::GetExposure()
+    unsigned int HikDriver::GetExposure()
     {
         double exposure_time = 0.0;
         if (DeviceHandle)
@@ -167,7 +167,7 @@ namespace Gaia::CameraService
     }
 
     /// Set the digital gain of the camera.
-    bool HikCamera::SetGain(double gain)
+    bool HikDriver::SetGain(double gain)
     {
         if (DeviceHandle)
         {
@@ -177,7 +177,7 @@ namespace Gaia::CameraService
     }
 
     /// Get digital gain.
-    double HikCamera::GetGain()
+    double HikDriver::GetGain()
     {
         double gain = 0.0;
         if (DeviceHandle)
@@ -190,7 +190,7 @@ namespace Gaia::CameraService
     }
 
     /// Set red channel value of the white balance.
-    bool HikCamera::SetWhiteBalanceRed(double ratio)
+    bool HikDriver::SetWhiteBalanceRed(double ratio)
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector", 0) == MV_OK)
@@ -201,7 +201,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance red channel value.
-    double HikCamera::GetWhiteBalanceRed()
+    double HikDriver::GetWhiteBalanceRed()
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector",0) == MV_OK)
@@ -214,7 +214,7 @@ namespace Gaia::CameraService
     }
 
     /// Set blue channel value of the white balance.
-    bool HikCamera::SetWhiteBalanceBlue(double ratio)
+    bool HikDriver::SetWhiteBalanceBlue(double ratio)
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector", 2) == MV_OK)
@@ -225,7 +225,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance blue channel value.
-    double HikCamera::GetWhiteBalanceBlue()
+    double HikDriver::GetWhiteBalanceBlue()
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector",2) == MV_OK)
@@ -238,7 +238,7 @@ namespace Gaia::CameraService
     }
 
     /// Set green channel value of the white balance.
-    bool HikCamera::SetWhiteBalanceGreen(double ratio)
+    bool HikDriver::SetWhiteBalanceGreen(double ratio)
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector",1) == MV_OK)
@@ -249,7 +249,7 @@ namespace Gaia::CameraService
     }
 
     /// Get white balance green channel value.
-    double HikCamera::GetWhiteBalanceGreen()
+    double HikDriver::GetWhiteBalanceGreen()
     {
         if (DeviceHandle && MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 0) == MV_OK
             && MV_CC_SetEnumValue(DeviceHandle, "BalanceRatioSelector",1) == MV_OK)
@@ -262,7 +262,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust the exposure for once.
-    bool HikCamera::AutoAdjustExposure()
+    bool HikDriver::AutoAdjustExposure()
     {
         if (DeviceHandle)
         {
@@ -272,7 +272,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust the gain for once.
-    bool HikCamera::AutoAdjustGain()
+    bool HikDriver::AutoAdjustGain()
     {
         if (DeviceHandle)
         {
@@ -282,7 +282,7 @@ namespace Gaia::CameraService
     }
 
     /// Auto adjust white balance for once.
-    bool HikCamera::AutoAdjustWhiteBalance()
+    bool HikDriver::AutoAdjustWhiteBalance()
     {
         if (!DeviceHandle) return false;
         if (MV_CC_SetEnumValue(DeviceHandle, "BalanceWhiteAuto", 1) != MV_OK) return false;
@@ -290,7 +290,7 @@ namespace Gaia::CameraService
     }
 
     /// Get width of the picture.
-    long HikCamera::GetPictureWidth()
+    long HikDriver::GetPictureWidth()
     {
         long width = 0;
         if (DeviceHandle)
@@ -303,7 +303,7 @@ namespace Gaia::CameraService
     }
 
     /// Get height of the picture.
-    long HikCamera::GetPictureHeight()
+    long HikDriver::GetPictureHeight()
     {
         long height = 0;
         if (DeviceHandle)
@@ -316,19 +316,19 @@ namespace Gaia::CameraService
     }
 
     /// Get channels description.
-    std::vector<std::vector<char>> HikCamera::GetPictureChannels()
+    std::vector<std::vector<char>> HikDriver::GetPictureChannels()
     {
         return {{'B', 'G', 'R'}};
     }
 
     /// Get format name of the picture.
-    std::vector<std::string> HikCamera::GetPictureFormats()
+    std::vector<std::string> HikDriver::GetPictureFormats()
     {
         return {"8U"};
     }
 
     /// Get picture names list.
-    std::vector<std::string> HikCamera::GetPictureNames()
+    std::vector<std::string> HikDriver::GetPictureNames()
     {
         return {"main"};
     }

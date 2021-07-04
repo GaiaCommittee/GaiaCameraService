@@ -1,4 +1,4 @@
-#include "CameraInterface.hpp"
+#include "CameraDriverInterface.hpp"
 
 #include <utility>
 #include "CameraServer.hpp"
@@ -6,18 +6,18 @@
 namespace Gaia::CameraService
 {
     /// Constructor
-    CameraInterface::CameraInterface(std::string type_name) :
+    CameraDriverInterface::CameraDriverInterface(std::string type_name) :
         DeviceTypeName(std::move(type_name))
     {}
 
     /// Generate picture shared memory block name.
-    std::string CameraInterface::GetPictureBlockName(const std::string &picture_name)
+    std::string CameraDriverInterface::GetPictureBlockName(const std::string &picture_name)
     {
         return DeviceName + "." + picture_name;
     }
 
     /// Update the timestamp of the given picture.
-    void CameraInterface::UpdatePictureTimestamp(const std::string &picture_name)
+    void CameraDriverInterface::UpdatePictureTimestamp(const std::string &picture_name)
     {
         if (Server)
         {
@@ -26,7 +26,7 @@ namespace Gaia::CameraService
     }
 
     /// Get the logger of the host server.
-    LogService::LogClient* CameraInterface::GetLogger() const
+    LogService::LogClient* CameraDriverInterface::GetLogger() const
     {
         if (Server)
         {
@@ -36,7 +36,7 @@ namespace Gaia::CameraService
     }
 
     /// Get the configurator of the host server.
-    ConfigurationService::ConfigurationClient* CameraInterface::GetConfigurator() const
+    ConfigurationService::ConfigurationClient* CameraDriverInterface::GetConfigurator() const
     {
         if (Server)
         {
@@ -46,7 +46,7 @@ namespace Gaia::CameraService
     }
 
     /// Get connection to the Redis server.
-    sw::redis::Redis *CameraInterface::GetDatabase() const
+    sw::redis::Redis *CameraDriverInterface::GetDatabase() const
     {
         if (Server)
         {
@@ -56,7 +56,7 @@ namespace Gaia::CameraService
     }
 
     /// Initialize this camera.
-    void CameraInterface::Initialize(unsigned int device_index, CameraServer *server)
+    void CameraDriverInterface::Initialize(unsigned int device_index, CameraServer *server)
     {
         DeviceIndexSource = device_index;
         DeviceNameSource = DeviceTypeName + "." + std::to_string(DeviceIndexSource);

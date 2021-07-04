@@ -17,7 +17,7 @@ namespace Gaia::CameraService
      * @details
      *  After open the camera device, the captured picture will directly be saved in the shared memory block.
      */
-    class CameraInterface
+    class CameraDriverInterface
     {
         friend class CameraServer;
     private:
@@ -43,7 +43,7 @@ namespace Gaia::CameraService
          * @param type_name Type name of this camera.
          * @param index Index of the bound camera device.
          */
-        explicit CameraInterface(std::string type_name);
+        explicit CameraDriverInterface(std::string type_name);
 
         /// Update the timestamp of the given picture.
         void UpdatePictureTimestamp(const std::string& picture_name);
@@ -57,7 +57,7 @@ namespace Gaia::CameraService
 
     public:
         /// Virtual destructor for derived classes.
-        virtual ~CameraInterface() = default;
+        virtual ~CameraDriverInterface() = default;
 
         /// Index of the device.
         const decltype(DeviceIndexSource)& DeviceIndex {DeviceIndexSource};
