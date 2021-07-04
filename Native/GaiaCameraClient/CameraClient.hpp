@@ -63,7 +63,7 @@ namespace Gaia::CameraService
          * @brief Set the exposure of the camera.
          * @param microseconds Exposure time in microseconds.
          */
-        void SetExposure(unsigned int milliseconds);
+        void SetExposure(unsigned int microseconds);
         /**
          * @brief Set the digital gain of the camera.
          * @param gain Value of the digital gain.

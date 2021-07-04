@@ -42,9 +42,9 @@ namespace Gaia::CameraService
     }
 
     /// Set the exposure of the camera.
-    void CameraClient::SetExposure(unsigned int milliseconds)
+    void CameraClient::SetExposure(unsigned int microseconds)
     {
-        Connection->set(ConfigurationPrefix + "Exposure", std::to_string(milliseconds));
+        Connection->set(ConfigurationPrefix + "Exposure", std::to_string(microseconds));
         Connection->publish(CommandChannelName, "update_exposure");
     }
 
