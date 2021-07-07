@@ -106,6 +106,10 @@ namespace Gaia::CameraService
                     current_time - last_status_update_time).count();
             if (elapsed_time >= 1000)
             {
+                if (!CameraDriver->IsAlive())
+                {
+                    throw std::runtime_error("Camera is not alive.");
+                }
                 Connection->set("cameras/" + CameraDriver->DeviceName + "/status/fps",
                                 std::to_string(CameraDriver->RetrievedPicturesCount));
                 CameraDriver->RetrievedPicturesCount = 0;

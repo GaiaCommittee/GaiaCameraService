@@ -87,6 +87,9 @@ namespace Gaia::CameraService
         /// Close the camera on the given index and stop acquisition.
         virtual void Close() = 0;
 
+        /// Check whether this camera is still alive or not, usually by checking picture timestamp.
+        virtual bool IsAlive() = 0;
+
         /**
          * @brief Set the exposure of the camera.
          * @param microseconds Exposure time in microseconds.

@@ -58,6 +58,8 @@ namespace Gaia::CameraService
                 + std::to_string(pixel_type) + " , converter index " + std::to_string(converter_id));
         }
         UpdatePictureTimestamp("main");
+
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
     }
 
     /// Open the camera.
@@ -146,6 +148,8 @@ namespace Gaia::CameraService
             GetLogger()->RecordError("Failed to open camera: failed to start acquisition.");
             throw std::runtime_error("Failed to open camera: failed to start acquisition.");
         }
+
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
     }
 
     /// Close the opened camera device.
@@ -158,6 +162,17 @@ namespace Gaia::CameraService
         DeviceHandle = nullptr;
 
         if (Writer) Writer->Release();
+    }
+
+    /// Check timestamp.
+    bool DahengDriver::IsAlive()
+    {
+        if (std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::steady_clock::now() - LastReceiveTimePoint.load()).count() > 1)
+        {
+            return false;
+        }
+        return true;
     }
 
     /// Set the exposure of the camera.

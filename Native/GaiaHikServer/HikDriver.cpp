@@ -50,6 +50,8 @@ namespace Gaia::CameraService
                 std::to_string(parameters->enPixelType));
         }
         UpdatePictureTimestamp("main");
+
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
     }
 
     /// Open the camera.
@@ -130,6 +132,8 @@ namespace Gaia::CameraService
             GetLogger()->RecordError("Failed to start acquisition.");
             throw std::runtime_error("Failed to start acquisition.");
         }
+
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
     }
 
     /// Close the opened camera device.
@@ -142,6 +146,17 @@ namespace Gaia::CameraService
         DeviceHandle = nullptr;
 
         if (Writer) Writer->Release();
+    }
+
+    /// Check time point to judge whether this camera is alive or not.
+    bool HikDriver::IsAlive()
+    {
+        if (std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::steady_clock::now() - LastReceiveTimePoint.load()).count() > 1)
+        {
+            return false;
+        }
+        return true;
     }
 
     /// Set the exposure of the camera.

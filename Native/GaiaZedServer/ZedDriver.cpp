@@ -142,6 +142,8 @@ namespace Gaia::CameraService
         left_view_task.get();
         right_view_task.get();
         point_cloud_task.get();
+
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
     }
 
     /// Open the camera.
@@ -219,6 +221,8 @@ namespace Gaia::CameraService
                 static_cast<long>(picture_size * 4 * 4), true);
         PointCloudWriter->SetHeader(point_cloud_header);
 
+        LastReceiveTimePoint = std::chrono::steady_clock::now();
+
         GrabberThread.Start();
     }
 
@@ -234,6 +238,17 @@ namespace Gaia::CameraService
         if (RightViewWriter) RightViewWriter->Release();
         if (PointCloudWriter) PointCloudWriter->Release();
     };
+
+    /// Check whether this camera is alive or not.
+    bool ZedDriver::IsAlive()
+    {
+        if (std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::steady_clock::now() - LastReceiveTimePoint.load()).count() > 1)
+        {
+            return false;
+        }
+        return true;
+    }
 
     /// Set the exposure of the camera.
     bool ZedDriver::SetExposure(unsigned int percentage)

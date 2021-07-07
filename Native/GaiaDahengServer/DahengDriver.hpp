@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
+#include <atomic>
 #include <GaiaSharedPicture/GaiaSharedPicture.hpp>
 #include <GaiaCameraServer/GaiaCameraServer.hpp>
 
@@ -15,6 +17,9 @@ namespace Gaia::CameraService
         std::atomic<unsigned int> ReceivedPicturesCount {0};
         /// Writer for writing shared picture.
         std::unique_ptr<SharedPicture::PictureWriter> Writer {nullptr};
+
+        /// Time point of last receive picture event, used for judging whether the camera is alive or not.
+        std::atomic<std::chrono::steady_clock::time_point> LastReceiveTimePoint {std::chrono::steady_clock::now()};
 
     public:
         /// Default constructor.
@@ -46,6 +51,9 @@ namespace Gaia::CameraService
         void Open() override;
         /// Close the camera and stop acquisition.
         void Close() override;
+
+        /// Check whether this camera is alive or not.
+        bool IsAlive() override;
 
         /**
          * @brief Get the exposure of the camera.

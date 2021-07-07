@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
+#include <atomic>
 #include <GaiaSharedPicture/GaiaSharedPicture.hpp>
 #include <GaiaCameraServer/GaiaCameraServer.hpp>
 #include <GaiaBackground/GaiaBackground.hpp>
@@ -23,6 +25,9 @@ namespace Gaia::CameraService
         std::unique_ptr<SharedPicture::PictureWriter> PointCloudWriter;
         /// Background acquisition thread.
         Background::BackgroundWorker GrabberThread;
+
+        /// Timestamp of the last receive event, used for judging whether this camera is alive or not.
+        std::atomic<std::chrono::steady_clock::time_point> LastReceiveTimePoint {std::chrono::steady_clock::now()};
 
         /// Grab a picture and write it into the shared memory.
         void UpdatePicture();
@@ -54,6 +59,9 @@ namespace Gaia::CameraService
 
         /// Close the camera and stop acquisition.
         void Close() override;
+
+        /// Check whether this camera is alive or not.
+        bool IsAlive() override;
 
         /**
          * @brief Get the exposure of the camera.
