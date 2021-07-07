@@ -43,7 +43,7 @@ namespace Gaia::CameraService
         }
         if (!Connection->sismember("cameras/" + DeviceName + "/pictures", picture_name))
         {
-            throw std::runtime_error("Picture " + picture_name + " is not provided by camera " + DeviceName)；
+            throw std::runtime_error("Picture " + picture_name + " is not provided by camera " + DeviceName);
         }
         return CameraReader(Connection, DeviceName, picture_name);
     }
