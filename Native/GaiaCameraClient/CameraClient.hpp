@@ -17,11 +17,11 @@ namespace Gaia::CameraService
     {
     protected:
         /// Generated name of the camera device according to the camera type and device index.
-        const std::string DeviceName;
+        std::string DeviceName;
         /// Name of the channel for camera control.
-        const std::string CommandChannelName;
+        std::string CommandChannelName;
         /// Name prefix for configuration items of the camera.
-        const std::string ConfigurationPrefix;
+        std::string ConfigurationPrefix;
 
     protected:
         /// Connection to the Redis server.
@@ -30,7 +30,7 @@ namespace Gaia::CameraService
     public:
         /**
          * @brief Reuse the connection to connect to a Redis server and connect to the given camera.
-         * @param camera Type name of the camera.
+         * @param camera Type name of the camera, if "*" is given, then a random type will be picked.
          * @param index Index of the camera to open.
          * @param connection Connection to a Redis server.
          */
@@ -51,10 +51,10 @@ namespace Gaia::CameraService
 
         /**
          * @brief Get the reader for a picture with the given name.
-         * @param picture_name Name of the picture.
+         * @param picture_name Name of the picture, if "*" is given, a random picture will be picked.
          * @return Reader for a picture with the given name.
          */
-        CameraReader GetReader(const std::string& picture_name);
+        CameraReader GetReader(std::string picture_name = "*");
 
         /// Get current frames per second.
         [[nodiscard]] int GetFPS();

@@ -15,7 +15,15 @@ namespace Gaia::CameraService
            Connection(std::move(connection)), DeviceName(camera_type + "." + std::to_string(index)),
            CommandChannelName("cameras/" + DeviceName + "/command"),
            ConfigurationPrefix("configurations/" + DeviceName + "/")
-    {}
+    {
+        if (!Connection) throw std::runtime_error("Null Redis connection.");
+        if (camera_type == "*")
+        {
+            DeviceName = Connection->srandmember("cameras").value_or("null");
+        }
+        if (!Connection->sismember("cameras", DeviceName))
+            throw std::runtime_error("Camera " + DeviceName + " can not be found.");
+    }
 
     /// Get names set of pictures.
     std::unordered_set<std::string> CameraClient::GetPictures()
@@ -26,8 +34,17 @@ namespace Gaia::CameraService
     }
 
     /// Get a reader for the picture with the given name.
-    CameraReader CameraClient::GetReader(const std::string &picture_name)
+    CameraReader CameraClient::GetReader(std::string picture_name)
     {
+        if (!Connection) throw std::runtime_error("Connection to Redis is null.");
+        if (picture_name == "*")
+        {
+            picture_name = Connection->srandmember("cameras/" + DeviceName + "/pictures").value_or("null");
+        }
+        if (!Connection->sismember("cameras/" + DeviceName + "/pictures", picture_name))
+        {
+            throw std::runtime_error("Picture " + picture_name + " is not provided by camera " + DeviceName)；
+        }
         return CameraReader(Connection, DeviceName, picture_name);
     }
 
