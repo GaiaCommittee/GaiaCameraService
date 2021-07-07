@@ -94,7 +94,7 @@ add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
 # Gaia Name Client
 add_custom_module(${TARGET_NAME} PUBLIC GaiaNameClient)
 
-if (PROJECT_SUIT)
+if (DEFINED PROJECT_SUIT)
     # Gaia Camera Server
     target_include_directories(${TARGET_NAME} PRIVATE "../")
     target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)

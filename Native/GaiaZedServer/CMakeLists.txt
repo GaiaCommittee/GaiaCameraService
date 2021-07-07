@@ -90,7 +90,7 @@ add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
 # Gaia Background
 add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
 
-if (PROJECT_SUIT)
+if (DEFINED PROJECT_SUIT)
     # Gaia Camera Server
     target_include_directories(${TARGET_NAME} PRIVATE "../")
     target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
