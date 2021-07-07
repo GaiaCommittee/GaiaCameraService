@@ -48,7 +48,8 @@ namespace Gaia::CameraService
         }
 
         ReceivedPicturesCount++;
-        auto status = DxRaw8toRGB24(const_cast<void*>(parameters->pImgBuf), PictureMemory.GetPointer(),
+
+        auto status = DxRaw8toRGB24(const_cast<void*>(parameters->pImgBuf), Writer->GetPointer(),
                       static_cast<VxUint32>(parameters->nWidth), static_cast<VxUint32>(parameters->nHeight),
                       RAW2RGB_NEIGHBOUR, converter_id, false);
         if (status != DX_STATUS::DX_OK)
@@ -107,8 +108,15 @@ namespace Gaia::CameraService
         }
 
         // Prepare shared memory.
-        PictureMemory.Create(DeviceName + ".main",
-         static_cast<long>(GetPictureWidth() * GetPictureHeight() * GetPictureChannels().size() + 250));
+        Writer = std::make_unique<SharedPicture::PictureWriter>(DeviceName + ".main",
+         static_cast<long>(GetPictureWidth() * GetPictureHeight() * 3), true);
+        SharedPicture::PictureHeader picture_header;
+        picture_header.PixelType = SharedPicture::PictureHeader::PixelTypes::Unsigned;
+        picture_header.PixelBits = SharedPicture::PictureHeader::PixelBitSizes::Bits8;
+        picture_header.Channels = 3;
+        picture_header.Width = GetPictureWidth();
+        picture_header.Height = GetPictureHeight();
+        Writer->SetHeader(picture_header);
 
         // Configure acquisition rate if given.
         auto option_fps = GetConfigurator()->Get("FPS");
@@ -149,15 +157,7 @@ namespace Gaia::CameraService
         GXCloseDevice(DeviceHandle);
         DeviceHandle = nullptr;
 
-        PictureMemory.Delete();
-    }
-
-    /// Get current frames per seconds.
-    unsigned int DahengDriver::AcquireReceivedFrameCount()
-    {
-        auto count = ReceivedPicturesCount.load();
-        ReceivedPicturesCount = 0;
-        return count;
+        if (Writer) Writer->Release();
     }
 
     /// Set the exposure of the camera.
@@ -367,22 +367,10 @@ namespace Gaia::CameraService
         return height;
     }
 
-    /// Get channels description.
-    std::vector<std::vector<char>> DahengDriver::GetPictureChannels()
-    {
-        return {{'B', 'G', 'R'}};
-    }
-
-    /// Get format name of the picture.
-    std::vector<std::string> DahengDriver::GetPictureFormats()
-    {
-        return {"8U"};
-    }
-
     /// Get picture names list.
-    std::vector<std::string> DahengDriver::GetPictureNames()
+    std::vector<std::tuple<std::string, std::string>> DahengDriver::GetPictureNames()
     {
-        return {"main"};
+        return {{"main", "BGR"}};
     }
 }
 

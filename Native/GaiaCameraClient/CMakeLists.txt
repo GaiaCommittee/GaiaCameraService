@@ -83,8 +83,8 @@ endif()
 # Dependencies
 #==============================
 
-# Gaia Shared Memory
-add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+# Gaia Shared Picture
+add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
 
 # OpenCV
 find_package(OpenCV REQUIRED)

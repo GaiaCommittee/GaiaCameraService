@@ -40,8 +40,8 @@ namespace Gaia::CameraService
         convert_package.nHeight = parameters->nHeight;
         convert_package.pSrcData = static_cast<unsigned char *>(data);
         convert_package.nSrcDataLen = parameters->nFrameLen;
-        convert_package.pDstBuffer = reinterpret_cast<unsigned char*>(PictureMemory.GetPointer());
-        convert_package.nDstBufferSize = PictureMemory.GetSize();
+        convert_package.pDstBuffer = reinterpret_cast<unsigned char*>(Writer->GetPointer());
+        convert_package.nDstBufferSize = Writer->GetMaxSize();
         convert_package.enSrcPixelType = parameters->enPixelType;
         convert_package.enDstPixelType = PixelType_Gvsp_BGR8_Packed;
         if (MV_CC_ConvertPixelType(DeviceHandle, &convert_package) != MV_OK)
@@ -95,9 +95,18 @@ namespace Gaia::CameraService
             GetLogger()->RecordError("Failed to register capture callback.");
             throw std::runtime_error("Failed to register capture callback.");
         }
+
         // Prepare shared memory.
-        PictureMemory.Create(DeviceName + ".main",
-                             static_cast<long>(GetPictureWidth() * GetPictureHeight() * GetPictureChannels().size() + 250));
+        Writer = std::make_unique<SharedPicture::PictureWriter>(DeviceName + ".main",
+        static_cast<long>(GetPictureWidth() * GetPictureHeight() * 3), true);
+
+        SharedPicture::PictureHeader picture_header;
+        picture_header.PixelType = SharedPicture::PictureHeader::PixelTypes::Unsigned;
+        picture_header.PixelBits = SharedPicture::PictureHeader::PixelBitSizes::Bits8;
+        picture_header.Channels = 3;
+        picture_header.Width = GetPictureWidth();
+        picture_header.Height = GetPictureHeight();
+        Writer->SetHeader(picture_header);
 
         // Configure acquisition frames if given.
         auto option_fps = GetConfigurator()->Get("FPS");
@@ -132,15 +141,7 @@ namespace Gaia::CameraService
         MV_CC_DestroyHandle(DeviceHandle);
         DeviceHandle = nullptr;
 
-        PictureMemory.Delete();
-    }
-
-    /// Get current frames per seconds.
-    unsigned int HikDriver::AcquireReceivedFrameCount()
-    {
-        auto count = ReceivedPicturesCount.load();
-        ReceivedPicturesCount = 0;
-        return count;
+        if (Writer) Writer->Release();
     }
 
     /// Set the exposure of the camera.
@@ -315,21 +316,9 @@ namespace Gaia::CameraService
         return height;
     }
 
-    /// Get channels description.
-    std::vector<std::vector<char>> HikDriver::GetPictureChannels()
-    {
-        return {{'B', 'G', 'R'}};
-    }
-
-    /// Get format name of the picture.
-    std::vector<std::string> HikDriver::GetPictureFormats()
-    {
-        return {"8U"};
-    }
-
     /// Get picture names list.
-    std::vector<std::string> HikDriver::GetPictureNames()
+    std::vector<std::tuple<std::string, std::string>> HikDriver::GetPictureNames()
     {
-        return {"main"};
+        return {{"main", "BGR"}};
     }
 }

@@ -85,8 +85,8 @@ endif()
 # Dependencies
 #==============================
 
-# Gaia Shared Memory
-add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+# Gaia Shared Picture
+add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
 # Gaia Background
 add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
 
@@ -142,5 +142,3 @@ install(TARGETS ${TARGET_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-# Install header files to 'default_path/TARGET_NAME/'
-install(DIRECTORY "." DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${TARGET_NAME}/ FILES_MATCHING PATTERN "*.hpp")

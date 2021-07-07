@@ -33,14 +33,14 @@ namespace Gaia::CameraService
     }
 
     /// Retrieve and upload a view picture from the device to the shared memory.
-    void UploadZedBGRPicture(LogService::LogClient* logger, sl::Camera& device,
-                          sl::VIEW view, SharedMemory::SourceMemory& memory)
+    void UploadZedBGRAPicture(LogService::LogClient* logger, sl::Camera& device,
+                              sl::VIEW view, SharedPicture::PictureWriter& writer)
     {
         sl::Mat sl_matrix;
         device.retrieveImage(sl_matrix, view, sl::MEM::CPU);
         auto matrix = ConvertToOpenCVMat(sl_matrix);
 
-        if (memory.GetSize() < matrix.elemSize())
+        if (writer.GetMaxSize() < matrix.elemSize())
         {
             logger->RecordError("Insufficient memory to upload Zed picture of view ID " +
                                 std::to_string(static_cast<int>(view)));
@@ -48,29 +48,30 @@ namespace Gaia::CameraService
         }
         /// Function std::memcpy(...) can not function properly here.
         cv::Mat shared_picture(cv::Size(matrix.cols, matrix.rows), matrix.type(),
-                               memory.GetPointer());
+                               writer.GetPointer());
         matrix.copyTo(shared_picture);
     }
 
     /// Retrieve and update a point cloud from the device to the shared memory.
-    void UploadZedPointCloud(LogService::LogClient* logger, sl::Camera& device, SharedMemory::SourceMemory& memory)
+    void UploadZedPointCloud(LogService::LogClient* logger, sl::Camera& device,
+                             SharedPicture::PictureWriter& writer)
     {
         sl::Mat sl_matrix;
         // Channels are X,Y,Z, BGRA (8 * 4 merged int a single 32 channel).
         device.retrieveMeasure(sl_matrix, sl::MEASURE::XYZBGRA,sl::MEM::CPU);
         auto matrix = ConvertToOpenCVMat(sl_matrix);
-        if (memory.GetSize() < matrix.elemSize())
+        if (writer.GetMaxSize() < matrix.elemSize())
         {
             logger->RecordError("Insufficient memory to upload Zed point cloud.");
             return;
         }
         cv::Mat shared_picture(cv::Size(matrix.cols, matrix.rows), matrix.type(),
-                               memory.GetPointer());
+                               writer.GetPointer());
         matrix.copyTo(shared_picture);
     }
 
     /// Convert a float3 vector into string.
-    std::string ConvertFloat3ToString(sl::float3 data)
+    std::string ConvertFloat3ToString(const sl::float3& data)
     {
         return std::to_string(data.x) + "," + std::to_string(data.y) + "," + std::to_string(data.z);
     }
@@ -104,15 +105,18 @@ namespace Gaia::CameraService
         }
 
         auto left_view_task = std::async(std::launch::async, [this]{
-            UploadZedBGRPicture(this->GetLogger(), this->Device, sl::VIEW::LEFT, this->LeftViewMemory);
+            if (!this->LeftViewWriter) return;
+            UploadZedBGRAPicture(this->GetLogger(), this->Device, sl::VIEW::LEFT, *this->LeftViewWriter);
             this->UpdatePictureTimestamp("left");
         });
         auto right_view_task = std::async(std::launch::async, [this]{
-            UploadZedBGRPicture(this->GetLogger(), this->Device, sl::VIEW::RIGHT, this->RightViewMemory);
+            if (!this->RightViewWriter) return;
+            UploadZedBGRAPicture(this->GetLogger(), this->Device, sl::VIEW::RIGHT, *this->RightViewWriter);
             this->UpdatePictureTimestamp("right");
         });
         auto point_cloud_task = std::async(std::launch::async, [this]{
-            UploadZedPointCloud(this->GetLogger(), this->Device, this->PointCloudMemory);
+            if (!this->PointCloudWriter) return;
+            UploadZedPointCloud(this->GetLogger(), this->Device, *this->PointCloudWriter);
             this->UpdatePictureTimestamp("point_cloud");
         });
 
@@ -187,10 +191,33 @@ namespace Gaia::CameraService
 
         auto picture_resolution = Device.getCameraInformation().camera_configuration.resolution;
         auto picture_size = picture_resolution.width * picture_resolution.height;
-        LeftViewMemory.Create(DeviceName + ".left", static_cast<long>(picture_size) * 4 + 256);
-        RightViewMemory.Create(DeviceName + ".right", static_cast<long>(picture_size) * 4 + 256);
+
+        SharedPicture::PictureHeader picture_header;
+        picture_header.PixelType = SharedPicture::PictureHeader::PixelTypes::Unsigned;
+        picture_header.PixelBits = SharedPicture::PictureHeader::PixelBitSizes::Bits8;
+        picture_header.Channels = 4;
+        picture_header.Width = picture_resolution.width;
+        picture_header.Height = picture_resolution.height;
+
+        LeftViewWriter = std::make_unique<SharedPicture::PictureWriter>(
+                DeviceName + ".left",static_cast<long>(picture_size * 4), true);
+        LeftViewWriter->SetHeader(picture_header);
+        RightViewWriter = std::make_unique<SharedPicture::PictureWriter>(
+                DeviceName + ".right",static_cast<long>(picture_size * 4), true);
+        RightViewWriter->SetHeader(picture_header);
+
+        SharedPicture::PictureHeader point_cloud_header;
+        point_cloud_header.PixelType = SharedPicture::PictureHeader::PixelTypes::Float;
+        point_cloud_header.PixelBits = SharedPicture::PictureHeader::PixelBitSizes::Bits32;
+        point_cloud_header.Channels = 4;
+        point_cloud_header.Width = picture_resolution.width;
+        point_cloud_header.Height = picture_resolution.height;
+
         // 1 float equals 4 chars in size.
-        PointCloudMemory.Create(DeviceName + ".point_cloud", static_cast<long>(picture_size) * 4 * 4 + 256);
+        PointCloudWriter = std::make_unique<SharedPicture::PictureWriter>(
+                DeviceName + ".point_cloud",
+                static_cast<long>(picture_size * 4 * 4), true);
+        PointCloudWriter->SetHeader(point_cloud_header);
 
         GrabberThread.Start();
     }
@@ -203,18 +230,10 @@ namespace Gaia::CameraService
         {
             Device.close();
         }
-        LeftViewMemory.Delete();
-        RightViewMemory.Delete();
-        PointCloudMemory.Delete();
+        if (LeftViewWriter) LeftViewWriter->Release();
+        if (RightViewWriter) RightViewWriter->Release();
+        if (PointCloudWriter) PointCloudWriter->Release();
     };
-
-    /// Get current frames per seconds.
-    unsigned int ZedDriver::AcquireReceivedFrameCount()
-    {
-        auto count = ReceivedPicturesCount.load();
-        ReceivedPicturesCount = 0;
-        return count;
-    }
 
     /// Set the exposure of the camera.
     bool ZedDriver::SetExposure(unsigned int percentage)
@@ -301,22 +320,10 @@ namespace Gaia::CameraService
         }
     }
 
-    /// Get channels description.
-    std::vector<std::vector<char>> ZedDriver::GetPictureChannels()
-    {
-        return {{'B', 'G', 'R', 'A'}, {'B', 'G', 'R', 'A'}, {'X', 'Y', 'Z', 'C'}};
-    }
-
-    /// Get format name of the picture.
-    std::vector<std::string> ZedDriver::GetPictureFormats()
-    {
-        return {"8U", "8U", "32F"};
-    }
-
     /// Get picture names list.
-    std::vector<std::string> ZedDriver::GetPictureNames()
+    std::vector<std::tuple<std::string, std::string>> ZedDriver::GetPictureNames()
     {
-        return {"left", "right", "point_cloud"};
+        return {{"left", "BGR"}, {"right", "BGR"}, {"point_cloud", "XYZC"}};
     }
 
 

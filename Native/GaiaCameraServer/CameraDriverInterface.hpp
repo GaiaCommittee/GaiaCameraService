@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <atomic>
 #include <sw/redis++/redis++.h>
 #include <GaiaLogClient/GaiaLogClient.hpp>
 #include <GaiaConfigurationClient/GaiaConfigurationClient.hpp>
@@ -55,6 +56,9 @@ namespace Gaia::CameraService
         /// Get connection to the Redis server.
         [[nodiscard]] sw::redis::Redis* GetDatabase() const;
 
+        /// Count of retrieved pictures, used for calculating FPS.
+        std::atomic<unsigned long> RetrievedPicturesCount {0};
+
     public:
         /// Virtual destructor for derived classes.
         virtual ~CameraDriverInterface() = default;
@@ -71,24 +75,17 @@ namespace Gaia::CameraService
          */
         [[nodiscard]] std::string GetPictureBlockName(const std::string& picture_name);
 
-        /// Get width of the picture.
-        virtual long GetPictureWidth() = 0;
-        /// Get height of the picture.
-        virtual long GetPictureHeight() = 0;
-        /// Get channel description of the picture, usually composed of 'B', 'G', 'R', 'A', and 'V' for grey value.
-        virtual std::vector<std::vector<char>> GetPictureChannels() = 0;
-        /// Get format name of the picture, such as "BGR" or "BayerRG".
-        virtual std::vector<std::string> GetPictureFormats() = 0;
-        /// Get list of picture names, such as "main".
-        virtual std::vector<std::string> GetPictureNames() = 0;
+        /**
+         * @brief Get names list of all output pictures.
+         * @return List of tuples, first string is picture name, second string is picture color format,
+         *         for example, {{"main", "BGR"}, {"vice", "BayerRG"}}
+         */
+        virtual std::vector<std::tuple<std::string, std::string>> GetPictureNames() = 0;
 
         /// Open the camera on the given index and start acquisition.
         virtual void Open() = 0;
         /// Close the camera on the given index and stop acquisition.
         virtual void Close() = 0;
-
-        /// Get and reset the count of received frames.
-        virtual unsigned int AcquireReceivedFrameCount() = 0;
 
         /**
          * @brief Set the exposure of the camera.

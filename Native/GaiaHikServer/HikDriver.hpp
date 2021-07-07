@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <GaiaSharedMemory/GaiaSharedMemory.hpp>
+#include <GaiaSharedPicture/GaiaSharedPicture.hpp>
 #include <GaiaCameraServer/GaiaCameraServer.hpp>
 
 namespace Gaia::CameraService
@@ -13,13 +13,12 @@ namespace Gaia::CameraService
         void *DeviceHandle{nullptr};
         /// Count of pictures captured by the camera.
         std::atomic<unsigned int> ReceivedPicturesCount{0};
-        /// Shared memory for the captured picture.
-        SharedMemory::SourceMemory PictureMemory;
+        /// Writer for writing shared picture.
+        std::unique_ptr<SharedPicture::PictureWriter> Writer {nullptr};
 
     public:
         /// Default constructor.
         HikDriver();
-
         /// Auto close the camera.
         ~HikDriver() override;
 
@@ -34,37 +33,22 @@ namespace Gaia::CameraService
          * @brief Get width of the picture.
          * @pre Camera is opened.
          */
-        long GetPictureWidth() override;
+        long GetPictureWidth();
 
         /**
          * @brief Get height of the picture.
          * @pre Camera is opened.
          */
-        long GetPictureHeight() override;
-
-        /**
-         * @brief Get channels description of the picture.
-         * @pre Camera is opened.
-         */
-        std::vector<std::vector<char>> GetPictureChannels() override;
-
-        /**
-         * @brief Get format name of the picture.
-         * @pre Camera is opened.
-         */
-        std::vector<std::string> GetPictureFormats() override;
+        long GetPictureHeight();
 
         /// Get picture names.
-        std::vector<std::string> GetPictureNames() override;
+        std::vector<std::tuple<std::string, std::string>> GetPictureNames() override;
 
         /// Open the camera on the bound index and start acquisition.
         void Open() override;
 
         /// Close the camera and stop acquisition.
         void Close() override;
-
-        /// Get current frames per second.
-        unsigned int AcquireReceivedFrameCount() override;
 
         /**
          * @brief Get the exposure of the camera.

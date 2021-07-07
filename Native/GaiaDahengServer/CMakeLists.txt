@@ -84,7 +84,15 @@ endif()
 #==============================
 
 # Gaia Shared Memory
-add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedMemory)
+add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
+# Gaia Background
+add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
+# Gaia Log Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaLogClient)
+# Gaia Configuration Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
+# Gaia Name Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaNameClient)
 
 # Gaia Camera Server
 target_include_directories(${TARGET_NAME} PRIVATE "../")
@@ -96,6 +104,11 @@ find_path(DX_IMAGE_PROC_INCLUDE "DxImageProc.h")
 find_library(GX_LIB_PATH "libgxiapi.so")
 target_include_directories(${TARGET_NAME} PUBLIC ${GX_API_INCLUDE} ${DX_IMAGE_PROC_INCLUDE})
 target_link_libraries(${TARGET_NAME} PUBLIC ${GX_LIB_PATH})
+
+# OpenCV
+find_package(OpenCV REQUIRED)
+target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
 
 # Boost
 find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
@@ -130,5 +143,3 @@ install(TARGETS ${TARGET_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-# Install header files to 'default_path/TARGET_NAME/'
-install(DIRECTORY "." DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${TARGET_NAME}/ FILES_MATCHING PATTERN "*.hpp")

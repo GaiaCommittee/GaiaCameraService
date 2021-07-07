@@ -6,7 +6,7 @@
 #include <sw/redis++/redis++.h>
 #include <GaiaSharedMemory/GaiaSharedMemory.hpp>
 
-#include "PictureReader.hpp"
+#include "CameraReader.hpp"
 
 namespace Gaia::CameraService
 {
@@ -54,7 +54,7 @@ namespace Gaia::CameraService
          * @param picture_name Name of the picture.
          * @return Reader for a picture with the given name.
          */
-        PictureReader GetReader(const std::string& picture_name);
+        CameraReader GetReader(const std::string& picture_name);
 
         /// Get current frames per second.
         [[nodiscard]] int GetFPS();

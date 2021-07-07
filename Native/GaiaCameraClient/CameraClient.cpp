@@ -26,11 +26,9 @@ namespace Gaia::CameraService
     }
 
     /// Get a reader for the picture with the given name.
-    PictureReader CameraClient::GetReader(const std::string &picture_name)
+    CameraReader CameraClient::GetReader(const std::string &picture_name)
     {
-        return PictureReader(Connection,
-                             "cameras/" + DeviceName + "/pictures/" + picture_name + "/",
-                             DeviceName + "." + picture_name);
+        return CameraReader(Connection, DeviceName, picture_name);
     }
 
     /// Get current frames per second.

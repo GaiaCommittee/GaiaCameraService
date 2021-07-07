@@ -45,12 +45,12 @@ namespace Gaia::CameraService
         sl::float3 GetOrientation();
 
         /// Get reader for the right view picture, in color format of BGR.
-        [[nodiscard]] inline PictureReader GetLeftViewReader()
+        [[nodiscard]] inline CameraReader GetLeftViewReader()
         {
             return GetReader("left");
         }
         /// Get reader for the left view picture, in color format of BGR.
-        [[nodiscard]] inline PictureReader GetRightViewReader()
+        [[nodiscard]] inline CameraReader GetRightViewReader()
         {
             return GetReader("right");
         }
@@ -60,7 +60,7 @@ namespace Gaia::CameraService
          *         first 3 channels are X, Y, and Z, distance to the left camera in unit of centimeter,
          *         last channel is BGRA color channel, every 8 bits belong to a color sector.
          */
-        [[nodiscard]] inline PictureReader GetPointCloudReader()
+        [[nodiscard]] inline CameraReader GetPointCloudReader()
         {
             return GetReader("point_cloud");
         }

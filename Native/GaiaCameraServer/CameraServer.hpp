@@ -50,7 +50,7 @@ namespace Gaia::CameraService
         std::shared_ptr<sw::redis::Redis> Connection {nullptr};
         /// Subscriber gotten from the Redis connection.
         std::unique_ptr<sw::redis::Subscriber> Subscriber {nullptr};
-        /// Token for name service.
+        /// Client for name service.
         std::unique_ptr<NameService::NameClient> NameResolver {nullptr};
         /// Client for log service.
         std::unique_ptr<LogService::LogClient> Logger {nullptr};

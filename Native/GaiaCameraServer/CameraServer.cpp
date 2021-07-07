@@ -79,30 +79,14 @@ namespace Gaia::CameraService
 
         auto pictures_list_key ="cameras/" + CameraDriver->DeviceName + "/pictures";
         const auto& picture_names = CameraDriver->GetPictureNames();
-        const auto& picture_formats = CameraDriver->GetPictureFormats();
-        const auto& picture_channels = CameraDriver->GetPictureChannels();
-
-        if (picture_formats.size() < picture_names.size() || picture_channels.size() < picture_names.size())
-        {
-            GetLogger()->RecordError("Information of pictures is incomplete, registration failed.");
-            throw std::runtime_error("Information of pictures is incomplete, registration failed.");
-        }
 
         for (auto picture_index = 0; picture_index < CameraDriver->GetPictureNames().size(); ++picture_index)
         {
             // Register pictures.
-            Connection->sadd(pictures_list_key, picture_names[picture_index]);
-            auto picture_information_prefix = "cameras/" + CameraDriver->DeviceName +
-                    "/pictures/" + picture_names[picture_index];
-
-            Connection->set(picture_information_prefix + "/width",
-                            std::to_string(CameraDriver->GetPictureWidth()));
-            Connection->set(picture_information_prefix + "/height",
-                            std::to_string(CameraDriver->GetPictureHeight()));
-            Connection->set(picture_information_prefix +  "/channels",
-                            std::to_string(picture_channels[picture_index].size()));
-            Connection->set(picture_information_prefix + "/format",
-                            picture_formats[picture_index]);
+            const auto& [name, color_format] = picture_names[picture_index];
+            Connection->sadd(pictures_list_key, name);
+            Connection->set("cameras/" + CameraDriver->DeviceName + "/pictures/" + name + "/format",
+                            color_format);
         }
         Logger->RecordMilestone("Picture information registered.");
 
@@ -123,7 +107,8 @@ namespace Gaia::CameraService
             if (elapsed_time >= 1000)
             {
                 Connection->set("cameras/" + CameraDriver->DeviceName + "/status/fps",
-                                std::to_string(CameraDriver->AcquireReceivedFrameCount()));
+                                std::to_string(CameraDriver->RetrievedPicturesCount));
+                CameraDriver->RetrievedPicturesCount = 0;
                 NameResolver->Update();
                 last_status_update_time = current_time;
             }
@@ -135,12 +120,11 @@ namespace Gaia::CameraService
         // Unregister pictures.
         Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures");
 
-        for (const auto& picture_name : CameraDriver->GetPictureNames())
+        for (const auto& [picture_name, color_format] : CameraDriver->GetPictureNames())
         {
-            Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/width");
-            Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/height");
-            Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/channels");
+            Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/fps");
             Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/format");
+            Connection->del("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/timestamp");
         }
         Logger->RecordMilestone("Picture information unregistered.");
 
