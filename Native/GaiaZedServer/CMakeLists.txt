@@ -90,9 +90,14 @@ add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
 # Gaia Background
 add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
 
-# Gaia Camera Server
-target_include_directories(${TARGET_NAME} PRIVATE "../")
-target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
+if (PROJECT_SUIT)
+    # Gaia Camera Server
+    target_include_directories(${TARGET_NAME} PRIVATE "../")
+    target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
+else()
+    # Gaia Camera Server
+    add_custom_module(${TARGET_NAME} PUBLIC GaiaCameraServer)
+endif()
 
 # OpenCV
 find_package(OpenCV REQUIRED)

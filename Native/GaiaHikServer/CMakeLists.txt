@@ -94,9 +94,14 @@ add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
 # Gaia Name Client
 add_custom_module(${TARGET_NAME} PUBLIC GaiaNameClient)
 
-# Gaia Camera Server
-target_include_directories(${TARGET_NAME} PRIVATE "../")
-target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
+if (PROJECT_SUIT)
+    # Gaia Camera Server
+    target_include_directories(${TARGET_NAME} PRIVATE "../")
+    target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraServer)
+else()
+    # Gaia Camera Server
+    add_custom_module(${TARGET_NAME} PUBLIC GaiaCameraServer)
+endif()
 
 # HikAPI
 find_path(Hik_INCLUDE "MvCameraControl.h")

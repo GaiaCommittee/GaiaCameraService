@@ -83,10 +83,14 @@ endif()
 # Dependencies
 #==============================
 
-target_include_directories(${TARGET_NAME} PUBLIC "../")
-
-# Gaia Camera Client
-target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraClient)
+if (PROJECT_SUIT)
+    # Gaia Camera Client
+    target_include_directories(${TARGET_NAME} PRIVATE "../")
+    target_link_libraries(${TARGET_NAME} PUBLIC GaiaCameraClient)
+else()
+    # Gaia Camera Client
+    add_custom_module(${TARGET_NAME} PUBLIC GaiaCameraClient)
+endif()
 
 # ZED
 find_package(ZED 3 REQUIRED)
