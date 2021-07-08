@@ -20,6 +20,8 @@ namespace Gaia::CameraService
         if (camera_type == "*")
         {
             DeviceName = Connection->srandmember("cameras").value_or("null");
+            CommandChannelName = "cameras/" + DeviceName + "/command";
+            ConfigurationPrefix = "configurations/" + DeviceName + "/";
         }
         if (!Connection->sismember("cameras", DeviceName))
             throw std::runtime_error("Camera " + DeviceName + " can not be found.");
