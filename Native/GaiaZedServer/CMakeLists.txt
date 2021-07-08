@@ -89,6 +89,12 @@ endif()
 add_custom_module(${TARGET_NAME} PUBLIC GaiaSharedPicture)
 # Gaia Background
 add_custom_module(${TARGET_NAME} PUBLIC GaiaBackground)
+# Gaia Log Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaLogClient)
+# Gaia Configuration Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaConfigurationClient)
+# Gaia Name Client
+add_custom_module(${TARGET_NAME} PUBLIC GaiaNameClient)
 
 if (DEFINED PROJECT_SUIT)
     # Gaia Camera Server

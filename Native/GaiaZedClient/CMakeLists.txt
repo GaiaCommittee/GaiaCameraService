@@ -92,6 +92,11 @@ else()
     add_custom_module(${TARGET_NAME} PUBLIC GaiaCameraClient)
 endif()
 
+# OpenCV
+find_package(OpenCV REQUIRED)
+target_include_directories(${TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(${TARGET_NAME} PUBLIC ${OpenCV_LIBRARIES})
+
 # ZED
 find_package(ZED 3 REQUIRED)
 target_include_directories(${TARGET_NAME} PUBLIC ${ZED_INCLUDE_DIRS})
