@@ -47,7 +47,7 @@ namespace Gaia::CameraService
             converter_id = DX_PIXEL_COLOR_FILTER::BAYERGR;
         }
 
-        ReceivedPicturesCount++;
+        RetrievedPicturesCount++;
 
         auto status = DxRaw8toRGB24(const_cast<void*>(parameters->pImgBuf), Writer->GetPointer(),
                       static_cast<VxUint32>(parameters->nWidth), static_cast<VxUint32>(parameters->nHeight),

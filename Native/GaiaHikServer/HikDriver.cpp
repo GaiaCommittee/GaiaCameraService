@@ -30,7 +30,7 @@ namespace Gaia::CameraService
     /// Invoked when a new picture is captured by the camera.
     void HikDriver::OnPictureCapture(unsigned char *data, void* parameters_package)
     {
-        ReceivedPicturesCount++;
+        RetrievedPicturesCount++;
 
         auto* parameters = static_cast<MV_FRAME_OUT_INFO_EX*>(parameters_package);
 

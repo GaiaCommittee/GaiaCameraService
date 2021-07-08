@@ -15,8 +15,6 @@ namespace Gaia::CameraService
     private:
         /// Zed camera device.
         sl::Camera Device;
-        /// Count of pictures captured by the camera.
-        std::atomic<unsigned int> ReceivedPicturesCount{0};
         /// Shared memory for the captured left view picture.
         std::unique_ptr<SharedPicture::PictureWriter> LeftViewWriter;
         /// Shared memory for the captured right view picture.

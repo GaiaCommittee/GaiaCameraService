@@ -13,8 +13,6 @@ namespace Gaia::CameraService
     private:
         // Camera handle gotten from SDK.
         void* DeviceHandle {nullptr};
-        /// Count of pictures captured by the camera.
-        std::atomic<unsigned int> ReceivedPicturesCount {0};
         /// Writer for writing shared picture.
         std::unique_ptr<SharedPicture::PictureWriter> Writer {nullptr};
 

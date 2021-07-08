@@ -96,7 +96,7 @@ namespace Gaia::CameraService
     /// Grab a picture and write it into the shared memory.
     void ZedDriver::UpdatePicture()
     {
-        ReceivedPicturesCount++;
+        RetrievedPicturesCount++;
 
         if (Device.grab() != sl::ERROR_CODE::SUCCESS)
         {
