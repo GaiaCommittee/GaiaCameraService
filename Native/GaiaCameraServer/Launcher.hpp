@@ -57,7 +57,7 @@ namespace Gaia::CameraService
                         std::make_unique<CameraClass>(constructor_arguments...),
                                 option_device,
                                 option_port, option_host);
-                std::cout << "Camera server online." << std::endl;
+                std::cout << "Camera server launching..." << std::endl;
                 server.Launch();
                 std::cout << "Camera server stopped." << std::endl;
             }catch (std::exception& error)
