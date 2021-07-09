@@ -1,5 +1,6 @@
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <chrono>
 #include <GaiaCameraClient/GaiaCameraClient.hpp>
 
 int main(int arguments_count, char** arguments)
@@ -83,9 +84,29 @@ int main(int arguments_count, char** arguments)
     auto title_name = camera_type + "-" + std::to_string(camera_index) + ": " + picture_name;
 
     // Max 60 FPS
-    while (cv::waitKey(15) != 27)
+    while (true)
     {
+        auto key = cv::waitKey(15);
+
+        if (key == 27) break;
+
         auto picture = reader.Read();
+
+        if (key == 's')
+        {
+            auto current_time_point = std::chrono::system_clock::now();
+            auto global_time = std::chrono::system_clock::to_time_t(current_time_point);
+            auto local_time = std::localtime(&global_time);
+
+            std::stringstream name_builder;
+            name_builder << "Save_" << local_time->tm_mon << "_" << local_time->tm_mday << "_";
+            name_builder << local_time->tm_hour << "_" << local_time->tm_min << "_" << local_time->tm_sec;
+            name_builder << ".png";
+
+            cv::imwrite(name_builder.str(), picture);
+            std::cout << "Picture saved: " << name_builder.str();
+        }
+
         if (resize)
         {
             cv::resize(picture, picture,
