@@ -29,7 +29,8 @@ namespace Gaia::CameraService
                 ("port,p", value<unsigned int>()->default_value(6379),
                  "port of the Redis server.")
                 ("device,d", value<unsigned int>()->default_value(0),
-                 "index of the device to open.");
+                 "index of the device to open.")
+                ("flip,f", "flip the picture.");
         variables_map variables;
         store(parse_command_line(command_line_counts, command_line, options), variables);
         notify(variables);
@@ -57,6 +58,8 @@ namespace Gaia::CameraService
                         std::make_unique<CameraClass>(constructor_arguments...),
                                 option_device,
                                 option_port, option_host);
+                if (variables.count("flip"))
+                    server.RequiredFlip = true;
                 std::cout << "Camera server launching..." << std::endl;
                 server.Launch();
                 std::cout << "Camera server stopped." << std::endl;

@@ -64,6 +64,9 @@ namespace Gaia::CameraService
         void UpdatePictureTimestamp(const std::string& picture_name);
 
     public:
+        /// Whether user require the camera to flip the picture or not.
+        bool RequiredFlip {false};
+
         /// Get logger of this server.
         [[nodiscard]] inline LogService::LogClient* GetLogger() const
         {

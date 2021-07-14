@@ -83,8 +83,6 @@ endif()
 # Dependencies
 #==============================
 
-target_include_directories(${TARGET_NAME} PUBLIC "../")
-
 if (DEFINED PROJECT_SUIT)
     # Gaia Camera Client
     target_include_directories(${TARGET_NAME} PRIVATE "../")

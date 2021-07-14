@@ -62,4 +62,14 @@ namespace Gaia::CameraService
         DeviceNameSource = DeviceTypeName + "." + std::to_string(DeviceIndexSource);
         Server = server;
     }
+
+    /// Check whether the server is required to flip the picture or not.
+    bool CameraDriverInterface::IsRequiredFlip() const
+    {
+        if (Server)
+        {
+            return Server->RequiredFlip;
+        }
+        return false;
+    }
 }

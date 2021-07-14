@@ -90,6 +90,9 @@ namespace Gaia::CameraService
         /// Check whether this camera is still alive or not, usually by checking picture timestamp.
         virtual bool IsAlive() = 0;
 
+        /// Check whether the server is required to flip the picture or not.
+        [[nodiscard]] bool IsRequiredFlip() const;
+
         /**
          * @brief Set the exposure of the camera.
          * @param microseconds Exposure time in microseconds.

@@ -34,14 +34,15 @@ namespace Gaia::CameraService
 
         auto* parameters = static_cast<MV_FRAME_OUT_INFO_EX*>(parameters_package);
 
+        cv::Mat picture(cv::Size(parameters->nWidth, parameters->nHeight), CV_8UC3);
         MV_CC_PIXEL_CONVERT_PARAM convert_package;
         std::memset(&convert_package, 0, sizeof(MV_CC_PIXEL_CONVERT_PARAM));
         convert_package.nWidth = parameters->nWidth;
         convert_package.nHeight = parameters->nHeight;
         convert_package.pSrcData = static_cast<unsigned char *>(data);
         convert_package.nSrcDataLen = parameters->nFrameLen;
-        convert_package.pDstBuffer = reinterpret_cast<unsigned char*>(Writer->GetPointer());
-        convert_package.nDstBufferSize = Writer->GetMaxSize();
+        convert_package.pDstBuffer = picture.data;
+        convert_package.nDstBufferSize = parameters->nWidth * parameters->nHeight * 3;
         convert_package.enSrcPixelType = parameters->enPixelType;
         convert_package.enDstPixelType = PixelType_Gvsp_BGR8_Packed;
         if (MV_CC_ConvertPixelType(DeviceHandle, &convert_package) != MV_OK)
@@ -49,6 +50,11 @@ namespace Gaia::CameraService
             GetLogger()->RecordError("Failed to convert the captured picture into BGR, pixel type " +
                 std::to_string(parameters->enPixelType));
         }
+        if (IsRequiredFlip())
+        {
+            cv::flip(picture, picture, -1);
+        }
+        Writer->Write(picture);
         UpdatePictureTimestamp("main");
 
         LastReceiveTimePoint = std::chrono::steady_clock::now();

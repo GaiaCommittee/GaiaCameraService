@@ -49,9 +49,15 @@ namespace Gaia::CameraService
 
         RetrievedPicturesCount++;
 
-        auto status = DxRaw8toRGB24(const_cast<void*>(parameters->pImgBuf), Writer->GetPointer(),
+        cv::Mat picture(cv::Size(parameters->nWidth, parameters->nHeight), CV_8UC3);
+        auto status = DxRaw8toRGB24(const_cast<void*>(parameters->pImgBuf), picture.data,
                       static_cast<VxUint32>(parameters->nWidth), static_cast<VxUint32>(parameters->nHeight),
                       RAW2RGB_NEIGHBOUR, converter_id, false);
+        if (IsRequiredFlip())
+        {
+            cv::flip(picture, picture, -1);
+        }
+        Writer->Write(picture);
         if (status != DX_STATUS::DX_OK)
         {
             GetLogger()->RecordError("Failed to convert captured picture to BGR, pixel type "

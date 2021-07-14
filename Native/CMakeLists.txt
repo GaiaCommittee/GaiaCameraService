@@ -14,7 +14,7 @@ if (NOT PROJECT_DECLARED)
 endif()
 
 if (NOT PROJECT_SUIT)
-    set(PROJECT_SUIT)
+    set(PROJECT_SUIT ON)
 endif()
 
 #==============================
