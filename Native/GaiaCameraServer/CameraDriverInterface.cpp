@@ -11,9 +11,9 @@ namespace Gaia::CameraService
     {}
 
     /// Generate picture shared memory block name.
-    std::string CameraDriverInterface::GetPictureBlockName(const std::string &picture_name)
+    std::string CameraDriverInterface::GetPictureBlockName(const std::string &picture_name, unsigned int block_id)
     {
-        return DeviceName + "." + picture_name;
+        return DeviceName + "." + picture_name + "." + std::to_string(block_id);
     }
 
     /// Update the timestamp of the given picture.
@@ -22,6 +22,15 @@ namespace Gaia::CameraService
         if (Server)
         {
             Server->UpdatePictureTimestamp(picture_name);
+        }
+    }
+
+    /// Update the block ID of the given picture.
+    void CameraDriverInterface::UpdatePictureBlockID(const std::string& picture_name, unsigned int id)
+    {
+        if (Server)
+        {
+            Server->UpdatePictureBlockID(picture_name, id);
         }
     }
 
@@ -71,5 +80,14 @@ namespace Gaia::CameraService
             return Server->RequiredFlip;
         }
         return false;
+    }
+
+    /// Update the total amount of swap chain blocks.
+    void CameraDriverInterface::UpdatePictureBlocksCount(const std::string &picture_name, unsigned int blocks_count)
+    {
+        if (Server)
+        {
+            Server->UpdatePictureBlocksCount(picture_name, blocks_count);
+        }
     }
 }

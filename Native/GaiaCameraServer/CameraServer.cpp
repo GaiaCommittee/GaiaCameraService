@@ -283,4 +283,18 @@ namespace Gaia::CameraService
         Connection->set("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/timestamp",
                         std::to_string(timestamp));
     }
+
+    /// Update the swap chain id of the target picture.
+    void CameraServer::UpdatePictureBlockID(const std::string& picture_name, unsigned int chain_id)
+    {
+        Connection->set("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/id",
+                        std::to_string(chain_id));
+    }
+
+    /// Update the total amount of swap chain blocks.
+    void CameraServer::UpdatePictureBlocksCount(const std::string &picture_name, unsigned int blocks_count)
+    {
+        Connection->set("cameras/" + CameraDriver->DeviceName + "/pictures/" + picture_name + "/blocks",
+                        std::to_string(blocks_count));
+    }
 }

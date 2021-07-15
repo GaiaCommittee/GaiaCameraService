@@ -6,6 +6,7 @@
 #include <GaiaSharedMemory/GaiaSharedMemory.hpp>
 #include <GaiaSharedPicture/GaiaSharedPicture.hpp>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 namespace Gaia::CameraService
 {
@@ -21,14 +22,23 @@ namespace Gaia::CameraService
         /// Connection to the Redis server.
         std::shared_ptr<sw::redis::Redis> Connection;
         /// Reader for the picture in a shared memory block.
-        std::unique_ptr<SharedPicture::PictureReader> Reader;
+        std::vector<std::unique_ptr<SharedPicture::PictureReader>> Readers;
 
         /// Name of the memory block to store the picture.
         const std::string MemoryBlockName;
         /// Name prefix for information items of this picture.
         const std::string StatusTimestampKeyName;
+        /// Name for the block id of this
+        const std::string StatusBlockIDKeyName;
         /// Name for the timestamp of this picture.
         const std::string StatusFPSKeyName;
+
+        const std::string DeviceName;
+        const std::string PictureName;
+
+    private:
+        /// Initialize readers list.
+        void InitializeReaders(const std::string& device_name, const std::string& picture_name);
 
     public:
         /**

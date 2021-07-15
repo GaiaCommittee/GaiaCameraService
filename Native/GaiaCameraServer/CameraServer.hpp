@@ -35,8 +35,8 @@ namespace Gaia::CameraService
      */
     class CameraServer
     {
-        /// Allow camera interface to invoke UpdatePictureTimestamp().
-        friend void CameraDriverInterface::UpdatePictureTimestamp(const std::string&);
+        /// Allow camera interface to invoke basic functions.
+        friend class CameraDriverInterface;
 
     private:
         /// Driver for the specific camera.
@@ -62,6 +62,12 @@ namespace Gaia::CameraService
 
         /// Update the timestamp of the target picture.
         void UpdatePictureTimestamp(const std::string& picture_name);
+
+        /// Update the chain id of the shared picture block.
+        void UpdatePictureBlockID(const std::string& picture_name, unsigned int chain_id);
+
+        /// Update the total amount of swap chain blocks.
+        void UpdatePictureBlocksCount(const std::string& picture_name, unsigned int blocks_count);
 
     public:
         /// Whether user require the camera to flip the picture or not.

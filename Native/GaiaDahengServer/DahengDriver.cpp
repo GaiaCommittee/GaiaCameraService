@@ -57,7 +57,14 @@ namespace Gaia::CameraService
         {
             cv::flip(picture, picture, -1);
         }
-        Writer->Write(picture);
+        auto* writer = Writers[SwapChainReadyIndex].get();
+        writer->Write(picture);
+        UpdatePictureBlockID(std::string("main"), SwapChainReadyIndex);
+        ++SwapChainReadyIndex;
+        if (SwapChainReadyIndex >= SwapChainTotalCount)
+        {
+            SwapChainReadyIndex = 0;
+        }
         if (status != DX_STATUS::DX_OK)
         {
             GetLogger()->RecordError("Failed to convert captured picture to BGR, pixel type "
@@ -116,15 +123,22 @@ namespace Gaia::CameraService
         }
 
         // Prepare shared memory.
-        Writer = std::make_unique<SharedPicture::PictureWriter>(DeviceName + ".main",
-         static_cast<long>(GetPictureWidth() * GetPictureHeight() * 3), true);
+        UpdatePictureBlocksCount("main", SwapChainTotalCount);
+        Writers.reserve(SwapChainTotalCount);
         SharedPicture::PictureHeader picture_header;
         picture_header.PixelType = SharedPicture::PictureHeader::PixelTypes::Unsigned;
         picture_header.PixelBits = SharedPicture::PictureHeader::PixelBitSizes::Bits8;
         picture_header.Channels = 3;
         picture_header.Width = GetPictureWidth();
         picture_header.Height = GetPictureHeight();
-        Writer->SetHeader(picture_header);
+        for (auto chain_index = 0; chain_index < SwapChainTotalCount; ++chain_index)
+        {
+            auto writer = std::make_unique<SharedPicture::PictureWriter>(
+                    DeviceName + ".main." + std::to_string(chain_index),
+                    static_cast<long>(GetPictureWidth() * GetPictureHeight() * 3), true);
+            writer->SetHeader(picture_header);
+            Writers.emplace_back(std::move(writer));
+        }
 
         // Configure acquisition rate if given.
         auto option_fps = GetConfigurator()->Get("FPS");
@@ -167,7 +181,7 @@ namespace Gaia::CameraService
         GXCloseDevice(DeviceHandle);
         DeviceHandle = nullptr;
 
-        if (Writer) Writer->Release();
+        if (!Writers.empty()) Writers.clear();
     }
 
     /// Check timestamp.

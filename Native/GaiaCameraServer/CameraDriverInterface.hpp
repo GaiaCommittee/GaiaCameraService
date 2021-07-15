@@ -48,6 +48,10 @@ namespace Gaia::CameraService
 
         /// Update the timestamp of the given picture.
         void UpdatePictureTimestamp(const std::string& picture_name);
+        /// Update the swap chain block id of the given picture.
+        void UpdatePictureBlockID(const std::string& picture_name, unsigned int chain_id);
+        /// Update the total amount of swap chain blocks.
+        void UpdatePictureBlocksCount(const std::string& picture_name, unsigned int blocks_count);
 
         /// Get logger of the host camera server.
         [[nodiscard]] LogService::LogClient* GetLogger() const;
@@ -73,7 +77,7 @@ namespace Gaia::CameraService
          * @param picture_name Name of the picture.
          * @return Generated picture shared memory block name.
          */
-        [[nodiscard]] std::string GetPictureBlockName(const std::string& picture_name);
+        [[nodiscard]] std::string GetPictureBlockName(const std::string& picture_nam, unsigned int block_id);
 
         /**
          * @brief Get names list of all output pictures.
@@ -92,7 +96,6 @@ namespace Gaia::CameraService
 
         /// Check whether the server is required to flip the picture or not.
         [[nodiscard]] bool IsRequiredFlip() const;
-
         /**
          * @brief Set the exposure of the camera.
          * @param microseconds Exposure time in microseconds.
