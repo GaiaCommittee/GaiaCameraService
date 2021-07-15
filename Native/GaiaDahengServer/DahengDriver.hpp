@@ -11,7 +11,6 @@ namespace Gaia::CameraService
     class DahengDriver : public CameraDriverInterface
     {
     private:
-
         const unsigned int SwapChainTotalCount {10};
         unsigned int SwapChainReadyIndex {0};
 

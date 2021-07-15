@@ -10,10 +10,13 @@ namespace Gaia::CameraService
     class HikDriver : public CameraDriverInterface
     {
     private:
+        const unsigned int SwapChainTotalCount {10};
+        unsigned int SwapChainReadyIndex {0};
+
         // Camera handle gotten from SDK.
         void *DeviceHandle{nullptr};
         /// Writer for writing shared picture.
-        std::unique_ptr<SharedPicture::PictureWriter> Writer {nullptr};
+        std::vector<std::unique_ptr<SharedPicture::PictureWriter>> Writers;
 
         /// Time point of last receive picture event, used for judging whether this camera is alive or not.
         std::atomic<std::chrono::steady_clock::time_point> LastReceiveTimePoint {std::chrono::steady_clock::now()};
