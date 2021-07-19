@@ -17,12 +17,12 @@ namespace Gaia::CameraService
     }
 
     /// Constructor.
-    HikDriver::HikDriver() :
+    HikDriver::VideoDriver() :
             CameraDriverInterface("hik")
     {}
 
     /// Destructor which will automatically close the device.
-    HikDriver::~HikDriver()
+    HikDriver::~VideoDriver()
     {
         Close();
     }

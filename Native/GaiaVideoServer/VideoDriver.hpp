@@ -2,41 +2,40 @@
 
 #include <memory>
 #include <chrono>
-#include <atomic>
 #include <GaiaSharedPicture/GaiaSharedPicture.hpp>
 #include <GaiaCameraServer/GaiaCameraServer.hpp>
 #include <GaiaBackground/GaiaBackground.hpp>
-#include <sl/Camera.hpp>
+#include <opencv2/opencv.hpp>
 
 namespace Gaia::CameraService
 {
-    // Todo: Add swap chain support.
-    class ZedDriver : public CameraDriverInterface
+    class VideoDriver : public CameraDriverInterface
     {
     private:
-        /// Zed camera device.
-        sl::Camera Device;
-        /// Shared memory for the captured left view picture.
-        std::unique_ptr<SharedPicture::PictureWriter> LeftViewWriter;
-        /// Shared memory for the captured right view picture.
-        std::unique_ptr<SharedPicture::PictureWriter> RightViewWriter;
-        /// Shared memory for the point cloud picture.
-        std::unique_ptr<SharedPicture::PictureWriter> PointCloudWriter;
-        /// Background acquisition thread.
-        Background::BackgroundWorker GrabberThread;
 
-        /// Timestamp of the last receive event, used for judging whether this camera is alive or not.
+        Gaia::Background::BackgroundWorker Updater;
+
+        const unsigned int SwapChainTotalCount {10};
+        unsigned int SwapChainReadyIndex {0};
+
+        unsigned int CurrentFrameIndex {0};
+        unsigned int TotalFrameCount {0};
+
+        std::unique_ptr<cv::VideoCapture> Video;
+
+        /// Writer for writing shared picture.
+        std::vector<std::unique_ptr<SharedPicture::PictureWriter>> Writers;
+
+        /// Time point of last receive picture event, used for judging whether this camera is alive or not.
         std::atomic<std::chrono::steady_clock::time_point> LastReceiveTimePoint {std::chrono::steady_clock::now()};
-
-        /// Grab a picture and write it into the shared memory.
-        void UpdatePicture();
 
     public:
         /// Default constructor.
-        ZedDriver();
-
+        VideoDriver();
         /// Auto close the camera.
-        ~ZedDriver() override;
+        ~VideoDriver() override;
+
+        void OnPictureCapture();
 
         /**
          * @brief Get width of the picture.
@@ -66,7 +65,7 @@ namespace Gaia::CameraService
          * @brief Get the exposure of the camera.
          * @return Microseconds of the exposure time.
          */
-        bool SetExposure(unsigned int percentage) override;
+        bool SetExposure(unsigned int microseconds) override;
 
         /**
          * @brief Get the exposure of the camera.
@@ -95,27 +94,19 @@ namespace Gaia::CameraService
         /**
          * @brief Set blue channel value of the white balance.
          * @param ratio Value of the target channel.
-         * @warning This function is not supported, a warning will be recorded.
          */
         bool SetWhiteBalanceBlue(double ratio) override;
 
-        /**
-         * @brief Get blue channel value of the white balance.
-         * @warning This function is not supported, a warning will be recorded.
-         */
+        /// Get blue channel value of the white balance.
         double GetWhiteBalanceBlue() override;
 
         /**
          * @brief Set green channel value of the white balance.
          * @param ratio Value of the target channel.
-         * @warning This function is not supported, a warning will be recorded.
          */
         bool SetWhiteBalanceGreen(double ratio) override;
 
-        /**
-         * @brief Get green channel value of the white balance.
-         * @warning This function is not supported, a warning will be recorded.
-         */
+        /// Get green channel value of the white balance.
         double GetWhiteBalanceGreen() override;
 
         /**

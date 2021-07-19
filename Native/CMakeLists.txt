@@ -28,6 +28,7 @@ add_subdirectory("GaiaDahengServer")
 add_subdirectory("GaiaHikServer")
 add_subdirectory("GaiaZedServer")
 add_subdirectory("GaiaZedClient")
+add_subdirectory("GaiaVideoServer")
 
 add_subdirectory("GaiaCameraViewer")
 add_subdirectory("GaiaCameraCalibrator")
